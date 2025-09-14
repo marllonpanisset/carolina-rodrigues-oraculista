@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caroline Rodrigues - Tarot</title>
+    <link rel="stylesheet" href="/styles/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="header">
+        <h1 class="logo">Caroline Rodrigues</h1>
+        <nav class="nav-links">
+            <a href="#hero">Início</a>
+            <a href="#agendamento">Agendar</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero" class="hero">
+            <div class="hero-content">
+                <h2>Seu Guia no Caminho da Intuição</h2>
+                <p>Agende sua consulta de Tarot e descubra a sabedoria ancestral. Por favor, leia todas as instruções para agendar sua consulta.</p>
+                <a href="#agendamento" class="cta-button">Agendar Consulta</a>
+            </div>
+        </section>
+
+        <section id="agendamento" class="agendamento">
+            <div class="container">
+                <div class="form-instructions">
+                    <h3>Agende Sua Consulta</h3>
+                    <p>Entre em contato comigo pelo WhatsApp <strong>apenas após o pagamento</strong>. Preencha todos os campos do formulário para concluir o agendamento.</p>
+                    
+                    <div class="pix-info">
+                        <h4>Valor do Pix: <span id="valor-pix">R$ 0,00</span></h4>
+                        <div class="chave-pix">
+                            <span id="chave-pix-texto">21990896570</span>
+                            <button id="copy-pix" class="copy-button">Copiar Chave</button>
+                        </div>
+                        <img id="qr-code" src="caminho/para/seu/qrcode.png" alt="QR Code do Pix">
+                    </div>
+                </div>
+
+                <form name="agendamento-caroline" id="schedule-form" class="schedule-form" method="POST" data-netlify="true" enctype="multipart/form-data">
+                    <label for="nome">Nome Completo</label>
+                    <input type="text" id="nome" name="nome" required>
+
+                    <label for="data-nascimento">Data de Nascimento</label>
+                    <input type="date" id="data-nascimento" name="data-nascimento" required>
+                    
+                    <label>Selecione um Horário Disponível:</label>
+                    <div id="horarios-disponiveis" class="horarios-grid">
+                        <p>Carregando horários...</p>
+                    </div>
+
+                    <label for="perguntas">Número de Perguntas</label>
+                    <select id="perguntas" name="perguntas" required>
+                        <option value="">Selecione a quantidade</option>
+                        <option value="1">1 Pergunta - R$ 7,00</option>
+                        <option value="2">2 Perguntas - R$ 10,00</option>
+                        <option value="4">4 Perguntas - R$ 17,00</option>
+                        <option value="s-n">Pergunta Sim ou Não - R$ 1,00</option>
+                    </select>
+
+                    <label for="comprovante">Comprovante de Pagamento (PDF)</label>
+                    <input type="file" id="comprovante" name="comprovante" accept=".pdf" required>
+
+                    <button type="submit">Agendar Consulta</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Oraculista Caroline Rodrigues - Todos os direitos reservados.</p>
+    </footer>
+
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Atendimento Agendado com Sucesso!</h2>
+            <p>Sua consulta foi agendada. Entre em contato comigo pelo WhatsApp para confirmar os detalhes.</p>
+            <a id="whatsapp-link" href="#" class="whatsapp-button" target="_blank">Entrar em contato no WhatsApp</a>
+        </div>
+    </div>
+    
+    <script src="/scripts/script.js"></script>
+</body>
+</html>
