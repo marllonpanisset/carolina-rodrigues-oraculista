@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dataInput = document.getElementById('data-consulta');
 
     // URL DO LINK DA SUA PLANILHA (O QUE FOI GERADO NO APPS SCRIPT)
-    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzHX2b3q1R53EMLbUI-7KUYsTc-PpU_h4OB2m3Zn3Zt-xjpVGbzSIOJ3_2uC67pbzpMmA/exec';
+    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxc0ld5tCPTf0SVC29Hmhr3GAM7s39KB6wg0JbvLn1vLhei3HWsdx17ryRhOHdcwUgpyg/exec';
 
     let todosOsHorarios = [];
 
