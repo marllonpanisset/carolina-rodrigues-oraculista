@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dataInput = document.getElementById('data-consulta');
 
     // URL DO LINK DA SUA PLANILHA (O QUE FOI GERADO NO APPS SCRIPT)
-    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIhZ2l2HuTxj47dUE6xn0s0DstDKbZ1hebUfzFR4qMDHwBU1iHfaWezZnF9eD3SHlgGw/exec';
+    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRECgg3rnA3CkXFHUl8ge9ZKVJ-GC7PiexiQWja9KgLe_TdArdCHG9YQn5OgPj6Qjc/exec';
 
     // Variável para armazenar todos os horários disponíveis após a primeira busca
     let todosOsHorarios = [];
