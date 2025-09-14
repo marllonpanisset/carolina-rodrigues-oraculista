@@ -1,57 +1,101 @@
-// Apps Script - web app que suporta listagem e "booking" via GET
-// Publique como Web App: Execute as = Me, Who has access = Anyone, even anonymous
 function doGet(e) {
-  const action = (e.parameter.action || 'list').toString();
-  const callback = e.parameter.callback; // se presente, retornamos JSONP
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getActiveSheet();
-
-  if (action === 'book') {
-    // parâmetros esperados: horario-id, nome, data-nascimento, perguntas
-    const idToUpdate = e.parameter['horario-id'];
-    const nomeConsulente = e.parameter['nome'] || '';
-    const dataNascimento = e.parameter['data-nascimento'] || '';
-    const quantidadePerguntas = e.parameter['perguntas'] || '';
-
-    const range = sheet.getDataRange();
-    const values = range.getValues();
-
-    let found = false;
-    for (let i = 1; i < values.length; i++) {
-      // compara como string para evitar mismatch de tipos
-      if (String(values[i][0]) === String(idToUpdate)) {
-        sheet.getRange(i + 1, 3).setValue('FALSE'); // coluna Disponivel
-        sheet.getRange(i + 1, 4).setValue(nomeConsulente);
-        sheet.getRange(i + 1, 5).setValue(dataNascimento);
-        sheet.getRange(i + 1, 6).setValue(quantidadePerguntas);
-        found = true;
-        break;
-      }
-    }
-
-    const result = found ? { status: 'success' } : { status: 'error', message: 'ID not found' };
-    const payload = JSON.stringify(result);
-    if (callback) {
-      return ContentService.createTextOutput(callback + '(' + payload + ')').setMimeType(ContentService.MimeType.JAVASCRIPT);
-    }
-    return ContentService.createTextOutput(payload).setMimeType(ContentService.MimeType.JSON);
-  }
-
-  // default: action === 'list' -> retorna todos os horários
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   const data = sheet.getDataRange().getValues();
-  const headers = data.shift() || [];
+  const headers = data.shift();
   const result = [];
-  data.forEach(row => {
-    const obj = {};
-    headers.forEach((h, idx) => {
-      obj[h] = row[idx];
+
+  data.forEach((row) => {
+    const rowObject = {};
+    headers.forEach((header, index) => {
+      rowObject[header] = row[index];
     });
-    result.push(obj);
+    result.push(rowObject);
   });
 
   const output = JSON.stringify(result);
-  if (callback) {
-    return ContentService.createTextOutput(callback + '(' + output + ')').setMimeType(ContentService.MimeType.JAVASCRIPT);
+
+  return ContentService.createTextOutput(output)
+    .setMimeType(ContentService.MimeType.JSON)
+    .setHeader("Access-Control-Allow-Origin", "*")
+    .setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    .setHeader("Access-Control-Allow-Headers", "Content-Type");
+}
+
+function doPost(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const data = e.parameter;
+  const idToUpdate = data['horario-id'];
+
+  const nomeConsulente = data['nome'];
+  const dataNascimento = data['data-nascimento'];
+  const quantidadePerguntas = data['perguntas'];
+
+  const range = sheet.getDataRange();
+  const values = range.getValues();
+
+  for (let i = 1; i < values.length; i++) {
+    if (values[i][0] == idToUpdate) {
+      sheet.getRange(i + 1, 3).setValue('FALSE');
+      sheet.getRange(i + 1, 4).setValue(nomeConsulente);
+      sheet.getRange(i + 1, 5).setValue(dataNascimento);
+      sheet.getRange(i + 1, 6).setValue(quantidadePerguntas);
+
+      return ContentService.createTextOutput(
+        JSON.stringify({ status: 'success' })
+      )
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeader("Access-Control-Allow-Origin", "*")
+      .setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+      .setHeader("Access-Control-Allow-Headers", "Content-Type");
+    }
   }
-  return ContentService.createTextOutput(output).setMimeType(ContentService.MimeType.JSON);
+
+  return ContentService.createTextOutput(
+    JSON.stringify({ status: 'error', message: 'ID not found' })
+  )
+  .setMimeType(ContentService.MimeType.JSON)
+  .setHeader("Access-Control-Allow-Origin", "*")
+  .setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+  .setHeader("Access-Control-Allow-Headers", "Content-Type");
+}
+
+function doOptions(e) {
+  // Responde requisições OPTIONS (necessário para CORS em alguns navegadores)
+  return ContentService.createTextOutput('')
+    .setMimeType(ContentService.MimeType.TEXT)
+    .setHeader("Access-Control-Allow-Origin", "*")
+    .setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    .setHeader("Access-Control-Allow-Headers", "Content-Type");
+}
+
+function gerarHorarios() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const ultimaLinha = sheet.getLastRow();
+  const ultimaID = (ultimaLinha > 1) ? sheet.getRange(ultimaLinha, 1).getValue() : 0;
+  let newID = ultimaID;
+  const hoje = new Date();
+
+  // Define os horários de segunda a quinta
+  const horariosSemana = ['21:00', '22:30', '00:00'];
+  // Define os horários de sexta
+  const horariosSexta = ['16:00', '17:30', '19:00'];
+
+  // Gera horários para a próxima semana
+  for (let i = 1; i <= 7; i++) {
+    const dataDoDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + i);
+    const diaDaSemana = dataDoDia.getDay(); // 0 = Domingo, 1 = Segunda...
+
+    let horariosDoDia = [];
+    if (diaDaSemana >= 1 && diaDaSemana <= 4) { // Segunda a Quinta
+      horariosDoDia = horariosSemana;
+    } else if (diaDaSemana === 5) { // Sexta
+      horariosDoDia = horariosSexta;
+    }
+
+    horariosDoDia.forEach(horario => {
+      newID++;
+      const dataCompleta = Utilities.formatDate(dataDoDia, "GMT-3", "yyyy-MM-dd") + ' ' + horario;
+      sheet.appendRow([newID, dataCompleta, 'TRUE', '', '', '']);
+    });
+  }
 }
