@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const dataInput = document.getElementById('data-consulta');
 
   // COLE AQUI a URL do Web App após novo Deploy
-  const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNwoUTnL9xJkzlQZnre2gmqDMcqrJqzvhr4ElxpFycybDXT6eB7i43OPXVA7yKXkXq0A/exec';
+  const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwbgL7V6R07281urezkNCP1BriXT2FY5qZKUsAAG68CWlzbIoufd_wnRMlXFo9PBR9HiQ/exec';
 
   let todosOsHorarios = [];
 
