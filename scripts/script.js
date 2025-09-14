@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dataInput = document.getElementById('data-consulta');
 
     // SUA URL DO GOOGLE APPS SCRIPT (Web App publicado como "Me" + "Anyone, even anonymous")
-    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzVi7T0ZnSBSWbg57VTTJdpKsTWJqrg9Kb00Y5qB33w-_od92cP7aDGdlcklxiZn_Bwyw/exec';
+    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxeHeqYml8lKVbxNrlC8dlKdDbsJwGl-4vcOQSq85BUqy2gfxWEo9is78ugzuGvtpNTzw/exec';
 
     let todosOsHorarios = [];
 
