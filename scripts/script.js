@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Substitua os valores abaixo pelo URL e a chave da sua API do Supabase
+    // 1. Configuração do Supabase
     const SUPABASE_URL = 'https://zuydviwvfarqiwfcwbou.supabase.co'; 
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1eWR2aXd2ZmFycWl3ZmN3Ym91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NzU2MTEsImV4cCI6MjA3MzQ1MTYxMX0.a5G6V5b8rhnjIsoyzluN_koc1gXKGJI-H5A9826bWLg';
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // 2. Elementos do DOM e dados
+    // 2. Elementos do DOM
     const perguntasSelect = document.getElementById('perguntas');
     const valorPixSpan = document.getElementById('valor-pix');
     const formulario = document.getElementById('schedule-form');
@@ -16,8 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const whatsappLink = document.getElementById('whatsapp-link');
     const horariosContainer = document.getElementById('horarios-disponiveis');
     const dataInput = document.getElementById('data-consulta');
-
-    let todosOsHorarios = [];
 
     const precos = {
         '1': 7.00,
@@ -32,69 +30,87 @@ document.addEventListener('DOMContentLoaded', () => {
         valorPixSpan.innerText = `R$ ${valor.toFixed(2).replace('.', ',')}`;
     }
 
-    // 3. Função para buscar horários do Supabase
-    async function fetchHorarios() {
+    // 3. Função que gera os horários possíveis para uma data
+    function gerarHorariosParaData(dataSelecionada) {
+        const data = new Date(dataSelecionada);
+        const diaSemana = data.getDay(); // 0=Domingo, 1=Segunda, ..., 6=Sábado
+        let horarios = [];
+
+        if (diaSemana >= 1 && diaSemana <= 4) { 
+            // Segunda a Quinta: 21h, 22h, 23h
+            for (let h = 21; h <= 23; h++) {
+                const horario = new Date(data);
+                horario.setHours(h, 0, 0, 0);
+                horarios.push(horario);
+            }
+            // 00h e 01h do dia seguinte
+            const proximoDia = new Date(data);
+            proximoDia.setDate(data.getDate() + 1);
+            for (let h = 0; h <= 1; h++) {
+                const horario = new Date(proximoDia);
+                horario.setHours(h, 0, 0, 0);
+                horarios.push(horario);
+            }
+        } else if (diaSemana === 5) {
+            // Sexta: 16h às 20h
+            for (let h = 16; h <= 20; h++) {
+                const horario = new Date(data);
+                horario.setHours(h, 0, 0, 0);
+                horarios.push(horario);
+            }
+        }
+
+        return horarios;
+    }
+
+    // 4. Renderiza os horários para a data escolhida
+    async function renderHorariosParaData(dataSelecionada) {
+        horariosContainer.innerHTML = '<p>Carregando...</p>';
+
+        const horariosPossiveis = gerarHorariosParaData(dataSelecionada);
+
+        if (horariosPossiveis.length === 0) {
+            horariosContainer.innerHTML = '<p>Não há atendimento nesse dia.</p>';
+            return;
+        }
+
         try {
-            const { data, error } = await supabase
+            // Busca horários já reservados no banco
+            const { data: agendados, error } = await supabase
                 .from('horarios')
-                .select('*')
-                .eq('disponivel', true)
-                .order('data_e_horario', { ascending: true });
+                .select('data_e_horario')
+                .gte('data_e_horario', `${dataSelecionada}T00:00:00`)
+                .lt('data_e_horario', `${dataSelecionada}T23:59:59`);
 
             if (error) throw error;
-            
-            todosOsHorarios = data;
-            
-            const hoje = new Date();
-            const dataFormatada = hoje.toISOString().split('T')[0];
-            dataInput.min = dataFormatada;
 
-            renderHorariosParaData(dataFormatada);
+            const ocupados = agendados?.map(a => new Date(a.data_e_horario).getTime()) || [];
 
-        } catch (error) {
-            console.error("Erro ao buscar horários:", error);
-            horariosContainer.innerHTML = '<p>Não foi possível carregar os horários. Tente novamente mais tarde.</p>';
-        }
-    }
+            horariosContainer.innerHTML = '';
 
-    // 4. Função para renderizar os horários na página
-    function renderHorariosParaData(dataSelecionada) {
-        horariosContainer.innerHTML = '';
-        
-        // Normalize a data selecionada para o início do dia local
-        const dataSelecionadaObj = new Date(dataSelecionada);
-        dataSelecionadaObj.setHours(0, 0, 0, 0);
+            horariosPossiveis.forEach(horario => {
+                const timestamp = horario.getTime();
+                const formatado = horario.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                const disabled = ocupados.includes(timestamp);
 
-        const horariosDoDia = todosOsHorarios.filter(h => {
-            const dataHorario = new Date(h.data_e_horario);
-            
-            // Normalize a data do banco de dados para o início do dia local
-            const dataHorarioNormalizada = new Date(dataHorario);
-            dataHorarioNormalizada.setHours(0, 0, 0, 0);
-            
-            // Compara as datas normalizadas
-            return dataHorarioNormalizada.getTime() === dataSelecionadaObj.getTime();
-        });
-
-        if (horariosDoDia.length === 0) {
-            horariosContainer.innerHTML = '<p>Não há horários disponíveis para o dia selecionado. Por favor, escolha outra data.</p>';
-        } else {
-            // Ordena os horários do dia antes de renderizar
-            horariosDoDia.sort((a, b) => new Date(a.data_e_horario) - new Date(b.data_e_horario));
-
-            horariosDoDia.forEach(h => {
-                const horarioFormatado = new Date(h.data_e_horario).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                const radioHtml = `
+                const html = `
                     <div>
-                        <input type="radio" id="${h.id}" name="horario-escolhido" value="${h.data_e_horario}" required>
-                        <label for="${h.id}">${horarioFormatado}</label>
+                        <input type="radio" id="${timestamp}" name="horario-escolhido" value="${horario.toISOString()}" ${disabled ? 'disabled' : ''} required>
+                        <label for="${timestamp}" style="${disabled ? 'color: gray;' : ''}">
+                            ${formatado} ${disabled ? '(indisponível)' : ''}
+                        </label>
                     </div>
                 `;
-                horariosContainer.innerHTML += radioHtml;
+                horariosContainer.innerHTML += html;
             });
+
+        } catch (err) {
+            console.error("Erro ao carregar horários:", err);
+            horariosContainer.innerHTML = '<p>Erro ao carregar horários.</p>';
         }
     }
-    // 5. Função para agendar a consulta
+
+    // 5. Função para agendar consulta
     formulario.addEventListener('submit', async (event) => {
         event.preventDefault();
 
@@ -103,25 +119,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const perguntas = perguntasSelect.value;
         const horarioEscolhido = formulario.querySelector('input[name="horario-escolhido"]:checked');
         const comprovante = document.getElementById('comprovante').files[0];
-        
+
         if (!horarioEscolhido || !comprovante) {
             alert('Por favor, selecione um horário e anexe o comprovante.');
             return;
         }
-        
-        // TODO: Lidar com o upload do comprovante para o Supabase Storage
-        // A lógica de upload de arquivos é um pouco mais complexa e vamos tratar depois de resolver o agendamento.
 
         try {
+            // Insere no banco esse horário como reservado
             const { error } = await supabase
                 .from('horarios')
-                .update({ 
-                    disponivel: false,
+                .insert([{
+                    data_e_horario: horarioEscolhido.value,
                     nome: nome,
                     data_nascimento: dataNascimento,
                     perguntas: perguntas
-                })
-                .eq('id', horarioEscolhido.id);
+                }]);
 
             if (error) throw error;
 
@@ -138,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const numeroWhatsapp = '5521990896570';
             whatsappLink.href = `https://wa.me/${numeroWhatsapp}?text=${encodeURIComponent(mensagemWhatsapp)}`;
-            
+
             modal.style.display = 'flex';
         } catch (error) {
             console.error('Erro ao agendar:', error);
@@ -146,9 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 6. Listeners para os elementos da página
+    // 6. Listeners
     dataInput.addEventListener('change', (event) => {
-        console.log("Data selecionada:", event.target.value);
         renderHorariosParaData(event.target.value);
     });
     perguntasSelect.addEventListener('change', atualizarValorPix);
@@ -160,16 +172,18 @@ document.addEventListener('DOMContentLoaded', () => {
     closeModal.addEventListener('click', () => {
         modal.style.display = 'none';
         formulario.reset();
-        fetchHorarios();
+        horariosContainer.innerHTML = '<p>Selecione uma data para ver os horários.</p>';
     });
     window.addEventListener('click', (event) => {
         if (event.target === modal) {
             modal.style.display = 'none';
             formulario.reset();
-            fetchHorarios();
+            horariosContainer.innerHTML = '<p>Selecione uma data para ver os horários.</p>';
         }
     });
 
-    // 7. Chamada inicial
-    fetchHorarios();
+    // 7. Configuração inicial
+    const hoje = new Date();
+    dataInput.min = hoje.toISOString().split('T')[0];
+    horariosContainer.innerHTML = '<p>Selecione uma data para ver os horários.</p>';
 });
