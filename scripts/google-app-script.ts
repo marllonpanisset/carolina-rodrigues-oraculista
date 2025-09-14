@@ -1,9 +1,9 @@
-function doGet(e) {
+function doGet() {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   const data = sheet.getDataRange().getValues();
   const headers = data.shift();
   const result = [];
-
+  
   data.forEach((row) => {
     const rowObject = {};
     headers.forEach((header, index) => {
@@ -11,28 +11,23 @@ function doGet(e) {
     });
     result.push(rowObject);
   });
-
-  const output = JSON.stringify(result);
-
-  return ContentService.createTextOutput(output)
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeader("Access-Control-Allow-Origin", "*")
-    .setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-    .setHeader("Access-Control-Allow-Headers", "Content-Type");
+  
+  return ContentService.createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   const data = e.parameter;
   const idToUpdate = data['horario-id'];
-
+  
   const nomeConsulente = data['nome'];
   const dataNascimento = data['data-nascimento'];
   const quantidadePerguntas = data['perguntas'];
-
+  
   const range = sheet.getDataRange();
   const values = range.getValues();
-
+  
   for (let i = 1; i < values.length; i++) {
     if (values[i][0] == idToUpdate) {
       sheet.getRange(i + 1, 3).setValue('FALSE');
@@ -40,32 +35,13 @@ function doPost(e) {
       sheet.getRange(i + 1, 5).setValue(dataNascimento);
       sheet.getRange(i + 1, 6).setValue(quantidadePerguntas);
 
-      return ContentService.createTextOutput(
-        JSON.stringify({ status: 'success' })
-      )
-      .setMimeType(ContentService.MimeType.JSON)
-      .setHeader("Access-Control-Allow-Origin", "*")
-      .setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-      .setHeader("Access-Control-Allow-Headers", "Content-Type");
+      return ContentService.createTextOutput(JSON.stringify({ status: 'success' }))
+        .setMimeType(ContentService.MimeType.JSON);
     }
   }
-
-  return ContentService.createTextOutput(
-    JSON.stringify({ status: 'error', message: 'ID not found' })
-  )
-  .setMimeType(ContentService.MimeType.JSON)
-  .setHeader("Access-Control-Allow-Origin", "*")
-  .setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-  .setHeader("Access-Control-Allow-Headers", "Content-Type");
-}
-
-function doOptions(e) {
-  // Responde requisições OPTIONS (necessário para CORS em alguns navegadores)
-  return ContentService.createTextOutput('')
-    .setMimeType(ContentService.MimeType.TEXT)
-    .setHeader("Access-Control-Allow-Origin", "*")
-    .setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-    .setHeader("Access-Control-Allow-Headers", "Content-Type");
+  
+  return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'ID not found' }))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function gerarHorarios() {
