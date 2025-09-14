@@ -60,10 +60,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. Função para renderizar os horários na página
     function renderHorariosParaData(dataSelecionada) {
         horariosContainer.innerHTML = '';
+
+        // Convertendo a string de data para um objeto Date
+        const dataSelecionadaObj = new Date(dataSelecionada + 'T00:00:00'); 
+        
+        // Filtra os horários para o dia selecionado de forma robusta
         const horariosDoDia = todosOsHorarios.filter(h => {
             const dataHorario = new Date(h.data_e_horario);
-            const dataFormatada = dataHorario.toISOString().split('T')[0];
-            return dataFormatada === dataSelecionada;
+            // Compara o ano, mês e dia para garantir a correspondência exata
+            return dataHorario.getFullYear() === dataSelecionadaObj.getFullYear() &&
+                dataHorario.getMonth() === dataSelecionadaObj.getMonth() &&
+                dataHorario.getDate() === dataSelecionadaObj.getDate();
         });
 
         if (horariosDoDia.length === 0) {
