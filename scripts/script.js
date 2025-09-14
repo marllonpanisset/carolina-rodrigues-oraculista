@@ -8,9 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModal = document.querySelector('.close-button');
     const whatsappLink = document.getElementById('whatsapp-link');
     const horariosContainer = document.getElementById('horarios-disponiveis');
+    const dataInput = document.getElementById('data-consulta');
 
     // URL DO LINK DA SUA PLANILHA (O QUE FOI GERADO NO APPS SCRIPT)
-    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyeidUPMXo0R449YdUNFXH3-8VshaurM99cJSk4-NNX_vkHp5Ky012jWDqqZRz1-yc16Q/exec';
+    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIhZ2l2HuTxj47dUE6xn0s0DstDKbZ1hebUfzFR4qMDHwBU1iHfaWezZnF9eD3SHlgGw/exec';
+
+    // Variável para armazenar todos os horários disponíveis após a primeira busca
+    let todosOsHorarios = [];
 
     const precos = {
         '1': 7.00,
@@ -27,49 +31,47 @@ document.addEventListener('DOMContentLoaded', () => {
         valorPixSpan.innerText = `R$ ${valor.toFixed(2).replace('.', ',')}`;
     }
 
+    // Função para carregar todos os horários da planilha uma única vez
     async function fetchHorarios() {
         try {
             const response = await fetch(GOOGLE_APPS_SCRIPT_URL);
             const data = await response.json();
             
-            const horariosDisponiveis = data.filter(h => h.Disponivel === 'TRUE' && new Date(h.Data_e_Horario) > new Date());
+            todosOsHorarios = data.filter(h => h.Disponivel === 'TRUE' && new Date(h.Data_e_Horario) > new Date());
             
-            const horariosPorData = horariosDisponiveis.reduce((acc, h) => {
-                const data = new Date(h.Data_e_Horario);
-                const dataFormatada = data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                const diaDaSemana = diasDaSemana[data.getDay()];
-                const chave = `${diaDaSemana}, ${dataFormatada}`;
-                
-                if (!acc[chave]) {
-                    acc[chave] = [];
-                }
-                acc[chave].push(h);
-                return acc;
-            }, {});
-            
-            renderHorarios(horariosPorData);
+            // Define a data mínima do calendário como o dia atual
+            const hoje = new Date();
+            const dataFormatada = hoje.toISOString().split('T')[0];
+            dataInput.min = dataFormatada;
+
+            // Renderiza os horários para o dia atual no carregamento inicial
+            renderHorariosParaData(dataFormatada);
+
         } catch (error) {
             console.error("Erro ao buscar horários da planilha:", error);
             horariosContainer.innerHTML = '<p>Não foi possível carregar os horários. Tente novamente mais tarde.</p>';
         }
     }
 
-    function renderHorarios(horariosPorData) {
+    // Função para renderizar horários para uma data específica
+    function renderHorariosParaData(dataSelecionada) {
         horariosContainer.innerHTML = '';
-        const chavesOrdenadas = Object.keys(horariosPorData).sort((a, b) => new Date(a.split(',')[1].trim().split('/').reverse().join('-')) - new Date(b.split(',')[1].trim().split('/').reverse().join('-')));
-        
-        if (chavesOrdenadas.length === 0) {
-            horariosContainer.innerHTML = '<p>Não há horários disponíveis no momento.</p>';
-            return;
-        }
+        const horariosDoDia = todosOsHorarios.filter(h => {
+            const dataHorario = new Date(h.Data_e_Horario);
+            const dataFormatada = dataHorario.toISOString().split('T')[0];
+            return dataFormatada === dataSelecionada;
+        });
 
-        chavesOrdenadas.forEach(data => {
-            const horariosDoDia = horariosPorData[data].sort((a, b) => new Date(a.Data_e_Horario) - new Date(b.Data_e_Horario));
-            
-            const tituloDia = document.createElement('h4');
-            tituloDia.textContent = data;
-            horariosContainer.appendChild(tituloDia);
+        const diaDaSemana = new Date(dataSelecionada + 'T00:00:00').getDay();
 
+        if (horariosDoDia.length === 0) {
+            // Verifica se o dia é sábado ou domingo
+            if (diaDaSemana === 0 || diaDaSemana === 6) {
+                horariosContainer.innerHTML = '<p>Não há agendamentos para fins de semana. Por favor, escolha um dia entre segunda e sexta-feira.</p>';
+            } else {
+                horariosContainer.innerHTML = '<p>Não há horários disponíveis para o dia selecionado. Por favor, escolha outra data.</p>';
+            }
+        } else {
             horariosDoDia.forEach(h => {
                 const horarioFormatado = new Date(h.Data_e_Horario).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 const radioHtml = `
@@ -80,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 horariosContainer.innerHTML += radioHtml;
             });
-        });
+        }
     }
 
     // Evento de submissão do formulário
@@ -119,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 minute: '2-digit'
             });
 
-            const mensagemWhatsapp = `Olá, Caroline! Fiz um agendamento. %0A%0A*Dados do Agendamento:*%0A- *Nome:* ${nome}%0A- *Data de Nascimento:* ${dataNascimento}%0A- *Quantidade de perguntas:* ${perguntasSelect.options[perguntasSelect.selectedIndex].text}%0A- *Horário Agendado:* ${dataFormatada}%0A%0AAnexei o comprovante no formulário do site. Poderíamos combinar o melhor horário?`;
+            const mensagemWhatsapp = `Olá, Carolina! Fiz um agendamento. %0A%0A*Dados do Agendamento:*%0A- *Nome:* ${nome}%0A- *Data de Nascimento:* ${dataNascimento}%0A- *Quantidade de perguntas:* ${perguntasSelect.options[perguntasSelect.selectedIndex].text}%0A- *Horário Agendado:* ${dataFormatada}%0A%0AAnexei o comprovante no formulário do site. Poderíamos combinar o melhor horário?`;
 
             const numeroWhatsapp = '5521990896570';
             whatsappLink.href = `https://wa.me/${numeroWhatsapp}?text=${encodeURIComponent(mensagemWhatsapp)}`;
@@ -132,6 +134,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Eventos e funções já existentes
+    dataInput.addEventListener('change', (event) => {
+        renderHorariosParaData(event.target.value);
+    });
     perguntasSelect.addEventListener('change', atualizarValorPix);
     copyButton.addEventListener('click', () => {
         navigator.clipboard.writeText(chavePix).then(() => {

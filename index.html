@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caroline Rodrigues - Tarot</title>
+    <title>Carolina Rodrigues - Tarot</title>
     <link rel="stylesheet" href="/styles/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +12,7 @@
 <body>
 
     <header class="header">
-        <h1 class="logo">Caroline Rodrigues</h1>
+        <h1 class="logo">Carolina Rodrigues</h1>
         <nav class="nav-links">
             <a href="#hero">Início</a>
             <a href="#agendamento">Agendar</a>
@@ -40,18 +40,21 @@
                             <span id="chave-pix-texto">21990896570</span>
                             <button id="copy-pix" class="copy-button">Copiar Chave</button>
                         </div>
-                        <img id="qr-code" src="caminho/para/seu/qrcode.png" alt="QR Code do Pix">
+                        
                     </div>
                 </div>
 
-                <form name="agendamento-caroline" id="schedule-form" class="schedule-form" method="POST" data-netlify="true" enctype="multipart/form-data">
+                <form name="agendamento-Carolina" id="schedule-form" class="schedule-form" method="POST" data-netlify="true" enctype="multipart/form-data">
                     <label for="nome">Nome Completo</label>
                     <input type="text" id="nome" name="nome" required>
 
                     <label for="data-nascimento">Data de Nascimento</label>
                     <input type="date" id="data-nascimento" name="data-nascimento" required>
                     
-                    <label>Selecione um Horário Disponível:</label>
+                    <label for="data-consulta">Selecione o dia da consulta</label>
+                    <input type="date" id="data-consulta" name="data-consulta" required>
+
+                    <label>Horários Disponíveis:</label>
                     <div id="horarios-disponiveis" class="horarios-grid">
                         <p>Carregando horários...</p>
                     </div>
@@ -75,7 +78,7 @@
     </main>
 
     <footer>
-        <p>&copy; 2025 Oraculista Caroline Rodrigues - Todos os direitos reservados.</p>
+        <p>&copy; 2025 Oraculista Carolina Rodrigues - Todos os direitos reservados.</p>
     </footer>
 
     <div id="success-modal" class="modal">
