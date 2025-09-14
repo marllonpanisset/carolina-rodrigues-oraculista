@@ -73,6 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 dataHorario.getDate() === dataSelecionadaObj.getDate();
         });
 
+        console.log("Horários do dia para", dataSelecionada, ":", horariosDoDia);
+
         if (horariosDoDia.length === 0) {
             horariosContainer.innerHTML = '<p>Não há horários disponíveis para o dia selecionado. Por favor, escolha outra data.</p>';
         } else {
@@ -143,6 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 6. Listeners para os elementos da página
     dataInput.addEventListener('change', (event) => {
+        console.log("Data selecionada:", event.target.value);
         renderHorariosParaData(event.target.value);
     });
     perguntasSelect.addEventListener('change', atualizarValorPix);
