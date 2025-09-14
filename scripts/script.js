@@ -60,20 +60,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. Função para renderizar os horários na página
     function renderHorariosParaData(dataSelecionada) {
         horariosContainer.innerHTML = '';
-
-        // Convertendo a string de data para um objeto Date
-        const dataSelecionadaObj = new Date(dataSelecionada + 'T00:00:00'); 
         
-        // Filtra os horários para o dia selecionado de forma robusta
+        // Normalize a data selecionada para o início do dia local
+        const dataSelecionadaObj = new Date(dataSelecionada);
+        dataSelecionadaObj.setHours(0, 0, 0, 0);
+
         const horariosDoDia = todosOsHorarios.filter(h => {
             const dataHorario = new Date(h.data_e_horario);
-            // Compara o ano, mês e dia para garantir a correspondência exata
-            return dataHorario.getFullYear() === dataSelecionadaObj.getFullYear() &&
-                dataHorario.getMonth() === dataSelecionadaObj.getMonth() &&
-                dataHorario.getDate() === dataSelecionadaObj.getDate();
+            
+            // Normalize a data do banco de dados para o início do dia local
+            const dataHorarioNormalizada = new Date(dataHorario);
+            dataHorarioNormalizada.setHours(0, 0, 0, 0);
+            
+            // Compara as datas normalizadas
+            return dataHorarioNormalizada.getTime() === dataSelecionadaObj.getTime();
         });
-
-        console.log("Horários do dia para", dataSelecionada, ":", horariosDoDia);
 
         if (horariosDoDia.length === 0) {
             horariosContainer.innerHTML = '<p>Não há horários disponíveis para o dia selecionado. Por favor, escolha outra data.</p>';
@@ -90,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
-
     // 5. Função para agendar a consulta
     formulario.addEventListener('submit', async (event) => {
         event.preventDefault();
