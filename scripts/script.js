@@ -10,9 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const horariosContainer = document.getElementById('horarios-disponiveis');
     const dataInput = document.getElementById('data-consulta');
 
-    // URL DO LINK DA SUA PLANILHA (O QUE FOI GERADO NO APPS SCRIPT)
-    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRGkJEPtGrDo18op9Tg51KcE-5gWOCuplPp1JeOFHIQTnbMer11txkqrOCNewgphGNkQ/exec';
-
     let todosOsHorarios = [];
 
     const precos = {
@@ -26,25 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const quantidade = perguntasSelect.value;
         const valor = precos[quantidade] || 0.00;
         valorPixSpan.innerText = `R$ ${valor.toFixed(2).replace('.', ',')}`;
-    }
-
-    async function fetchHorarios() {
-        try {
-            const response = await fetch(GOOGLE_APPS_SCRIPT_URL);
-            const data = await response.json();
-            
-            todosOsHorarios = data.filter(h => String(h.Disponivel) === 'TRUE' && new Date(h.Data_e_Horario) > new Date());
-            
-            const hoje = new Date();
-            const dataFormatada = hoje.toISOString().split('T')[0];
-            dataInput.min = dataFormatada;
-
-            renderHorariosParaData(dataFormatada);
-
-        } catch (error) {
-            console.error("Erro ao buscar horários da planilha:", error);
-            horariosContainer.innerHTML = '<p>Não foi possível carregar os horários. Tente novamente mais tarde.</p>';
-        }
     }
 
     function renderHorariosParaData(dataSelecionada) {
@@ -77,6 +55,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    async function fetchHorarios() {
+        google.script.run
+            .withSuccessHandler(data => {
+                todosOsHorarios = JSON.parse(data).filter(h => String(h.Disponivel) === 'TRUE' && new Date(h.Data_e_Horario) > new Date());
+                const hoje = new Date();
+                const dataFormatada = hoje.toISOString().split('T')[0];
+                dataInput.min = dataFormatada;
+                renderHorariosParaData(dataFormatada);
+            })
+            .withFailureHandler(error => {
+                console.error("Erro ao buscar horários da planilha:", error);
+                horariosContainer.innerHTML = '<p>Não foi possível carregar os horários. Tente novamente mais tarde.</p>';
+            })
+            .doGet();
+    }
+
     formulario.addEventListener('submit', async (event) => {
         event.preventDefault();
 
@@ -90,39 +84,36 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Por favor, selecione um horário e anexe o comprovante.');
             return;
         }
-        
+
         const formData = new FormData();
         formData.append('horario-id', horarioEscolhido.id);
         formData.append('nome', nome);
         formData.append('data-nascimento', dataNascimento);
         formData.append('perguntas', perguntas);
 
-        try {
-            await fetch(GOOGLE_APPS_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: formData
-            });
+        google.script.run
+            .withSuccessHandler(response => {
+                const dataEHora = new Date(horarioEscolhido.value);
+                const dataFormatada = dataEHora.toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
 
-            const dataEHora = new Date(horarioEscolhido.value);
-            const dataFormatada = dataEHora.toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+                const mensagemWhatsapp = `Olá, Caroline! Fiz um agendamento. %0A%0A*Dados do Agendamento:*%0A- *Nome:* ${nome}%0A- *Data de Nascimento:* ${dataNascimento}%0A- *Quantidade de perguntas:* ${perguntasSelect.options[perguntasSelect.selectedIndex].text}%0A- *Horário Agendado:* ${dataFormatada}%0A%0AAnexei o comprovante no formulário do site. Poderíamos combinar o melhor horário?`;
 
-            const mensagemWhatsapp = `Olá, Caroline! Fiz um agendamento. %0A%0A*Dados do Agendamento:*%0A- *Nome:* ${nome}%0A- *Data de Nascimento:* ${dataNascimento}%0A- *Quantidade de perguntas:* ${perguntasSelect.options[perguntasSelect.selectedIndex].text}%0A- *Horário Agendado:* ${dataFormatada}%0A%0AAnexei o comprovante no formulário do site. Poderíamos combinar o melhor horário?`;
-
-            const numeroWhatsapp = '5521990896570';
-            whatsappLink.href = `https://wa.me/${numeroWhatsapp}?text=${encodeURIComponent(mensagemWhatsapp)}`;
-            
-            modal.style.display = 'flex';
-        } catch (error) {
-            console.error('Erro ao agendar:', error);
-            alert('Ocorreu um erro ao agendar. Por favor, tente novamente mais tarde.');
-        }
+                const numeroWhatsapp = '5521990896570';
+                whatsappLink.href = `https://wa.me/${numeroWhatsapp}?text=${encodeURIComponent(mensagemWhatsapp)}`;
+                
+                modal.style.display = 'flex';
+            })
+            .withFailureHandler(error => {
+                console.error('Erro ao agendar:', error);
+                alert('Ocorreu um erro ao agendar. Por favor, tente novamente mais tarde.');
+            })
+            .doPost(formData);
     });
 
     dataInput.addEventListener('change', (event) => {
