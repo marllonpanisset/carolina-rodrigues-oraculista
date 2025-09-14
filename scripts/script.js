@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const horariosContainer = document.getElementById('horarios-disponiveis');
 
     // URL DO LINK DA SUA PLANILHA (O QUE FOI GERADO NO APPS SCRIPT)
-    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNgZjUa0SSfqscEmUk1H5x9ed1rLzTMcaZjNRB61oh0eCtXQdZIH42il0_KF0EXH0v/exec';
+    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyeidUPMXo0R449YdUNFXH3-8VshaurM99cJSk4-NNX_vkHp5Ky012jWDqqZRz1-yc16Q/exec';
 
     const precos = {
         '1': 7.00,
