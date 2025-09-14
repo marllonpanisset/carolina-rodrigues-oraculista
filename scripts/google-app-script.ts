@@ -51,20 +51,17 @@ function gerarHorarios() {
   let newID = ultimaID;
   const hoje = new Date();
 
-  // Define os horários de segunda a quinta
   const horariosSemana = ['21:00', '22:30', '00:00'];
-  // Define os horários de sexta
   const horariosSexta = ['16:00', '17:30', '19:00'];
 
-  // Gera horários para a próxima semana
   for (let i = 1; i <= 7; i++) {
     const dataDoDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + i);
-    const diaDaSemana = dataDoDia.getDay(); // 0 = Domingo, 1 = Segunda...
+    const diaDaSemana = dataDoDia.getDay();
 
     let horariosDoDia = [];
-    if (diaDaSemana >= 1 && diaDaSemana <= 4) { // Segunda a Quinta
+    if (diaDaSemana >= 1 && diaDaSemana <= 4) {
       horariosDoDia = horariosSemana;
-    } else if (diaDaSemana === 5) { // Sexta
+    } else if (diaDaSemana === 5) {
       horariosDoDia = horariosSexta;
     }
 
