@@ -1,0 +1,32 @@
+name: Gerar Horários Semanalmente
+
+on:
+  schedule:
+    # Roda toda segunda-feira às 01:00 AM.
+    # Ajuste o horário para um que funcione para o seu fuso horário.
+    # Por exemplo, para Rio de Janeiro (UTC-3), 01:00 AM UTC é o domingo, 22:00 PM.
+    # A expressão cron '0 4 * * 1' seria uma boa opção para rodar de madrugada no Brasil.
+    - cron: '0 4 * * 1' 
+  workflow_dispatch:
+
+jobs:
+  gerar-horarios:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Rodar o script para gerar horários
+        run: node popular-horarios-supabase.js
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}

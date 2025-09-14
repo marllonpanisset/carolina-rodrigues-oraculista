@@ -79,6 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (horariosDoDia.length === 0) {
             horariosContainer.innerHTML = '<p>Não há horários disponíveis para o dia selecionado. Por favor, escolha outra data.</p>';
         } else {
+            // Ordena os horários do dia antes de renderizar
+            horariosDoDia.sort((a, b) => new Date(a.data_e_horario) - new Date(b.data_e_horario));
+
             horariosDoDia.forEach(h => {
                 const horarioFormatado = new Date(h.data_e_horario).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 const radioHtml = `
