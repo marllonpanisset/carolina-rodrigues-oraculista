@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Substitua pelos dados do seu Supabase
     const SUPABASE_URL = 'https://zuydviwvfarqiwfcwbou.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1eWR2aXd2ZmFycWl3ZmN3Ym91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NzU2MTEsImV4cCI6MjA3MzQ1MTYxMX0.a5G6V5b8rhnjIsoyzluN_koc1gXKGJI-H5A9826bWLg';
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // 2. Elementos do DOM
+    // DOM
     const perguntasSelect = document.getElementById('perguntas');
     const valorPixSpan = document.getElementById('valor-pix');
     const formulario = document.getElementById('schedule-form');
@@ -30,23 +29,19 @@ document.addEventListener('DOMContentLoaded', () => {
         valorPixSpan.innerText = `R$ ${valor.toFixed(2).replace('.', ',')}`;
     }
 
-    // 🔧 Função para gerar horários dinamicamente (sem precisar pré-popular no banco)
+    // 🔧 Geração dinâmica de horários
     function gerarHorariosParaData(dataSelecionada) {
-        // Forçar parsing local da data (evita UTC deslocar para domingo)
         const [ano, mes, dia] = dataSelecionada.split('-').map(Number);
-        const data = new Date(ano, mes - 1, dia); 
-
-        const diaSemana = data.getDay(); // 0=Domingo, 1=Segunda, ..., 6=Sábado
+        const data = new Date(ano, mes - 1, dia);
+        const diaSemana = data.getDay();
         let horarios = [];
 
         if (diaSemana >= 1 && diaSemana <= 4) {
-            // Segunda a Quinta: 21h, 22h, 23h
             for (let h = 21; h <= 23; h++) {
                 const horario = new Date(data);
                 horario.setHours(h, 0, 0, 0);
                 horarios.push(horario);
             }
-            // 00h e 01h do dia seguinte
             const proximoDia = new Date(data);
             proximoDia.setDate(data.getDate() + 1);
             for (let h = 0; h <= 1; h++) {
@@ -55,25 +50,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 horarios.push(horario);
             }
         } else if (diaSemana === 5) {
-            // Sexta: 16h às 20h
             for (let h = 16; h <= 20; h++) {
                 const horario = new Date(data);
                 horario.setHours(h, 0, 0, 0);
                 horarios.push(horario);
             }
         }
-
         return horarios;
     }
 
-    // Buscar horários já reservados do banco
+    // 🔧 Buscar reservas já feitas
     async function fetchReservas(dataSelecionada) {
         try {
+            const inicioDia = new Date(`${dataSelecionada}T00:00:00`);
+            const fimDia = new Date(inicioDia);
+            fimDia.setDate(fimDia.getDate() + 1); // +1 dia para incluir madrugada
+
             const { data, error } = await supabase
                 .from('horarios')
-                .select('*')
-                .gte('data_e_horario', `${dataSelecionada}T00:00:00.000Z`)
-                .lte('data_e_horario', `${dataSelecionada}T23:59:59.999Z`);
+                .select('data_e_horario')
+                .gte('data_e_horario', inicioDia.toISOString())
+                .lt('data_e_horario', fimDia.toISOString());
 
             if (error) throw error;
             return data || [];
@@ -83,14 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Renderizar horários disponíveis
+    // Renderizar horários
     async function renderHorariosParaData(dataSelecionada) {
         horariosContainer.innerHTML = '<p>Carregando horários...</p>';
 
         const todosHorarios = gerarHorariosParaData(dataSelecionada);
         const reservas = await fetchReservas(dataSelecionada);
 
-        // Mapear os horários já reservados
         const reservadosSet = new Set(reservas.map(r => new Date(r.data_e_horario).getTime()));
 
         const disponiveis = todosHorarios.filter(h => !reservadosSet.has(h.getTime()));
@@ -102,19 +98,18 @@ document.addEventListener('DOMContentLoaded', () => {
             disponiveis.forEach(h => {
                 const horarioFormatado = h.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 const iso = h.toISOString();
-                const id = iso.replace(/[:.]/g, '-'); // id único
-                const radioHtml = `
+                const id = iso.replace(/[:.]/g, '-');
+                horariosContainer.innerHTML += `
                     <div>
                         <input type="radio" id="${id}" name="horario-escolhido" value="${iso}" required>
                         <label for="${id}">${horarioFormatado}</label>
                     </div>
                 `;
-                horariosContainer.innerHTML += radioHtml;
             });
         }
     }
 
-    // Submeter agendamento
+    // Submissão
     formulario.addEventListener('submit', async (event) => {
         event.preventDefault();
 
@@ -134,9 +129,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 .from('horarios')
                 .insert([{
                     data_e_horario: horarioEscolhido.value,
-                    nome: nome,
+                    nome,
                     data_nascimento: dataNascimento,
-                    perguntas: perguntas
+                    perguntas
                 }]);
 
             if (error) throw error;
@@ -150,11 +145,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 minute: '2-digit'
             });
 
-            const mensagemWhatsapp = `Olá, Carolina! Fiz um agendamento.%0A%0A*Dados do Agendamento:*%0A- *Nome:* ${nome}%0A- *Data de Nascimento:* ${dataNascimento}%0A- *Quantidade de perguntas:* ${perguntasSelect.options[perguntasSelect.selectedIndex].text}%0A- *Horário Agendado:* ${dataFormatada}%0A%0AAnexei o comprovante no formulário do site. Poderíamos combinar o melhor horário?`;
+            const mensagemWhatsapp = `Olá, Cacau! Fiz um agendamento.%0A%0A*Dados do Agendamento:*%0A*Nome:* ${nome}%0A*Data de Nascimento:* ${dataNascimento}%0A*Quantidade de perguntas:* ${perguntasSelect.options[perguntasSelect.selectedIndex].text}%0A*Horário Agendado:* ${dataFormatada}%0A%0A Segue o comprovante do pagamento.`;
 
-            const numeroWhatsapp = '5521990896570';
-            whatsappLink.href = `https://wa.me/${numeroWhatsapp}?text=${mensagemWhatsapp}`;
-
+            whatsappLink.href = `https://wa.me/5521990896570?text=${mensagemWhatsapp}`;
             modal.style.display = 'flex';
         } catch (error) {
             console.error('Erro ao agendar:', error);
@@ -178,22 +171,18 @@ document.addEventListener('DOMContentLoaded', () => {
     closeModal.addEventListener('click', () => {
         modal.style.display = 'none';
         formulario.reset();
-        if (dataInput.value) {
-            renderHorariosParaData(dataInput.value);
-        }
+        if (dataInput.value) renderHorariosParaData(dataInput.value);
     });
 
     window.addEventListener('click', (event) => {
         if (event.target === modal) {
             modal.style.display = 'none';
             formulario.reset();
-            if (dataInput.value) {
-                renderHorariosParaData(dataInput.value);
-            }
+            if (dataInput.value) renderHorariosParaData(dataInput.value);
         }
     });
 
-    // Definir data mínima e carregar horários de hoje
+    // Data mínima
     const hoje = new Date();
     const dataFormatada = hoje.toISOString().split('T')[0];
     dataInput.min = dataFormatada;
