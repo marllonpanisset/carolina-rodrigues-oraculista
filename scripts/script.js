@@ -171,6 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeModal.addEventListener('click', () => {
         modal.style.display = 'none';
         formulario.reset();
+        atualizarValorPix();
         if (dataInput.value) renderHorariosParaData(dataInput.value);
     });
 
@@ -178,9 +179,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target === modal) {
             modal.style.display = 'none';
             formulario.reset();
+            atualizarValorPix();
             if (dataInput.value) renderHorariosParaData(dataInput.value);
         }
     });
+
 
     // Data mínima
     const hoje = new Date();
