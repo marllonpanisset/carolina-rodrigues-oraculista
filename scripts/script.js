@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. Substitua os valores abaixo pelo URL e a chave da sua API do Supabase
+    const SUPABASE_URL = 'https://zuydviwvfarqiwfcwbou.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1eWR2aXd2ZmFycWl3ZmN3Ym91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NzU2MTEsImV4cCI6MjA3MzQ1MTYxMX0.a5G6V5b8rhnjIsoyzluN_koc1gXKGJI-H5A9826bWLg';
+
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // 2. Elementos do DOM e dados
     const perguntasSelect = document.getElementById('perguntas');
     const valorPixSpan = document.getElementById('valor-pix');
     const formulario = document.getElementById('schedule-form');
@@ -9,9 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const whatsappLink = document.getElementById('whatsapp-link');
     const horariosContainer = document.getElementById('horarios-disponiveis');
     const dataInput = document.getElementById('data-consulta');
-
-    // URL DO LINK DA SUA PLANILHA (O QUE FOI GERADO NO APPS SCRIPT)
-    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxc0ld5tCPTf0SVC29Hmhr3GAM7s39KB6wg0JbvLn1vLhei3HWsdx17ryRhOHdcwUgpyg/exec';
 
     let todosOsHorarios = [];
 
@@ -28,12 +32,18 @@ document.addEventListener('DOMContentLoaded', () => {
         valorPixSpan.innerText = `R$ ${valor.toFixed(2).replace('.', ',')}`;
     }
 
+    // 3. Função para buscar horários do Supabase
     async function fetchHorarios() {
         try {
-            const response = await fetch(GOOGLE_APPS_SCRIPT_URL);
-            const data = await response.json();
+            const { data, error } = await supabase
+                .from('horarios')
+                .select('*')
+                .eq('disponivel', true)
+                .order('data_e_horario', { ascending: true });
+
+            if (error) throw error;
             
-            todosOsHorarios = data.filter(h => String(h.Disponivel) === 'TRUE' && new Date(h.Data_e_Horario) > new Date());
+            todosOsHorarios = data;
             
             const hoje = new Date();
             const dataFormatada = hoje.toISOString().split('T')[0];
@@ -42,34 +52,29 @@ document.addEventListener('DOMContentLoaded', () => {
             renderHorariosParaData(dataFormatada);
 
         } catch (error) {
-            console.error("Erro ao buscar horários da planilha:", error);
+            console.error("Erro ao buscar horários:", error);
             horariosContainer.innerHTML = '<p>Não foi possível carregar os horários. Tente novamente mais tarde.</p>';
         }
     }
 
+    // 4. Função para renderizar os horários na página
     function renderHorariosParaData(dataSelecionada) {
         horariosContainer.innerHTML = '';
         const horariosDoDia = todosOsHorarios.filter(h => {
-            const dataHorario = new Date(h.Data_e_Horario);
+            const dataHorario = new Date(h.data_e_horario);
             const dataFormatada = dataHorario.toISOString().split('T')[0];
             return dataFormatada === dataSelecionada;
         });
 
-        const diaDaSemana = new Date(dataSelecionada + 'T00:00:00').getDay();
-
         if (horariosDoDia.length === 0) {
-            if (diaDaSemana === 0 || diaDaSemana === 6) {
-                horariosContainer.innerHTML = '<p>Não há agendamentos para fins de semana. Por favor, escolha um dia entre segunda e sexta-feira.</p>';
-            } else {
-                horariosContainer.innerHTML = '<p>Não há horários disponíveis para o dia selecionado. Por favor, escolha outra data.</p>';
-            }
+            horariosContainer.innerHTML = '<p>Não há horários disponíveis para o dia selecionado. Por favor, escolha outra data.</p>';
         } else {
             horariosDoDia.forEach(h => {
-                const horarioFormatado = new Date(h.Data_e_Horario).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                const horarioFormatado = new Date(h.data_e_horario).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 const radioHtml = `
                     <div>
-                        <input type="radio" id="${h.ID}" name="horario-escolhido" value="${h.Data_e_Horario}" required>
-                        <label for="${h.ID}">${horarioFormatado}</label>
+                        <input type="radio" id="${h.id}" name="horario-escolhido" value="${h.data_e_horario}" required>
+                        <label for="${h.id}">${horarioFormatado}</label>
                     </div>
                 `;
                 horariosContainer.innerHTML += radioHtml;
@@ -77,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // 5. Função para agendar a consulta
     formulario.addEventListener('submit', async (event) => {
         event.preventDefault();
 
@@ -91,17 +97,21 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        const formData = new FormData();
-        formData.append('horario-id', horarioEscolhido.id);
-        formData.append('nome', nome);
-        formData.append('data-nascimento', dataNascimento);
-        formData.append('perguntas', perguntas);
+        // TODO: Lidar com o upload do comprovante para o Supabase Storage
+        // A lógica de upload de arquivos é um pouco mais complexa e vamos tratar depois de resolver o agendamento.
 
         try {
-            await fetch(GOOGLE_APPS_SCRIPT_URL, {
-                method: 'POST',
-                body: formData
-            });
+            const { error } = await supabase
+                .from('horarios')
+                .update({ 
+                    disponivel: false,
+                    nome: nome,
+                    data_nascimento: dataNascimento,
+                    perguntas: perguntas
+                })
+                .eq('id', horarioEscolhido.id);
+
+            if (error) throw error;
 
             const dataEHora = new Date(horarioEscolhido.value);
             const dataFormatada = dataEHora.toLocaleDateString('pt-BR', {
@@ -112,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 minute: '2-digit'
             });
 
-            const mensagemWhatsapp = `Olá, Caroline! Fiz um agendamento. %0A%0A*Dados do Agendamento:*%0A- *Nome:* ${nome}%0A- *Data de Nascimento:* ${dataNascimento}%0A- *Quantidade de perguntas:* ${perguntasSelect.options[perguntasSelect.selectedIndex].text}%0A- *Horário Agendado:* ${dataFormatada}%0A%0AAnexei o comprovante no formulário do site. Poderíamos combinar o melhor horário?`;
+            const mensagemWhatsapp = `Olá, Carolina! Fiz um agendamento. %0A%0A*Dados do Agendamento:*%0A- *Nome:* ${nome}%0A- *Data de Nascimento:* ${dataNascimento}%0A- *Quantidade de perguntas:* ${perguntasSelect.options[perguntasSelect.selectedIndex].text}%0A- *Horário Agendado:* ${dataFormatada}%0A%0AAnexei o comprovante no formulário do site. Poderíamos combinar o melhor horário?`;
 
             const numeroWhatsapp = '5521990896570';
             whatsappLink.href = `https://wa.me/${numeroWhatsapp}?text=${encodeURIComponent(mensagemWhatsapp)}`;
@@ -124,6 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // 6. Listeners para os elementos da página
     dataInput.addEventListener('change', (event) => {
         renderHorariosParaData(event.target.value);
     });
@@ -146,5 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // 7. Chamada inicial
     fetchHorarios();
 });
