@@ -144,9 +144,10 @@ body {
     padding-top: var(--tamanho-cabecalho);
 }
 
+
 .form-instructions, .schedule-form {
     flex: 1;
-    min-width: 20rem; /* Para telas menores */
+    width: 100%; /* Para telas menores */
 }
 
 .form-instructions h3 {
@@ -452,6 +453,39 @@ footer a:hover {
 
     .container {
         flex-direction: column;
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+
+    .pix-info #valor-pix {
+        display: block;
+    }
+
+    .chave-pix {
+        display: block;
+    }
+
+    .chave-pix #chave-pix-texto {
+        display: block;
+    }
+
+    .copy-button {
+        display: block;
+        width: 100%;
+        margin-top: 0.5rem;
+    }    
+    
+    .schedule-form button[type="submit"],
+    .cta-button {
+        font-size: 1rem;
+    }
+
+    .form-instructions p {
+        font-size: 1.25rem;
+    }
+
+    .form-instructions p strong {
+        color: red;
     }
 }
 
@@ -486,4 +520,22 @@ footer a:hover {
     border-color: var(--cor-secundaria);
     color: var(--cor-fundo);
     font-weight: bold;
+}
+
+
+@media (max-width: 23rem) {
+    .schedule-form {
+        width: 90%;
+        margin: 0 auto;
+    }
+    
+
+    .copy-button {
+        padding: 0.9rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .hero p {
+        font-size: 1.2rem;
+    }
 }
