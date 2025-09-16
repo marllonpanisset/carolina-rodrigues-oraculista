@@ -154,7 +154,7 @@ body {
     font-family: var(--fonte-serifa);
     font-size: 2rem;
     margin-bottom: 1rem;
-    color: var(--cor-secundaria);
+    color: var(--cor-texto-claro);
 }
 
 .form-instructions p {
@@ -171,7 +171,7 @@ body {
 
 .pix-info h4 {
     font-size: 1.5rem;
-    color: var(--cor-secundaria);
+    color: var(--cor-texto-claro);
 }
 
 .pix-info #valor-pix {
@@ -198,8 +198,8 @@ body {
 }
 
 .copy-button {
-    background-color: var(--cor-secundaria);
-    color: var(--cor-fundo);
+    background-color: var(--cor-destaque);
+    color: var(--cor-texto-claro);
     border: none;
     padding: 0.8rem 1.3rem;
     font-size: 1rem;
