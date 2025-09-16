@@ -443,6 +443,10 @@ footer a:hover {
         margin: 0 0.625rem;
     }
 
+    .hero {
+        padding: 12rem 1.5rem;
+    }
+
     .hero h2 {
         font-size: 2rem;
     }
