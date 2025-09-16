@@ -3,10 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1eWR2aXd2ZmFycWl3ZmN3Ym91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NzU2MTEsImV4cCI6MjA3MzQ1MTYxMX0.a5G6V5b8rhnjIsoyzluN_koc1gXKGJI-H5A9826bWLg';
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
+
     const anoFooter = document.getElementById('ano-dinamico');
-    const anoAtual = new Date().getFullYear();
-    anoFooter.textContent = anoAtual;
+    anoFooter.textContent = new Date().getFullYear();
 
     // DOM
     const perguntasSelect = document.getElementById('perguntas');
@@ -33,32 +32,33 @@ document.addEventListener('DOMContentLoaded', () => {
         valorPixSpan.innerText = `R$ ${valor.toFixed(2).replace('.', ',')}`;
     }
 
-    // 🔧 Geração dinâmica de horários
+    // 🔧 Geração dinâmica de horários (agora de 30 em 30 minutos)
     function gerarHorariosParaData(dataSelecionada) {
         const [ano, mes, dia] = dataSelecionada.split('-').map(Number);
         const data = new Date(ano, mes - 1, dia);
         const diaSemana = data.getDay();
         let horarios = [];
 
-        if (diaSemana >= 1 && diaSemana <= 4) {
-            for (let h = 21; h <= 23; h++) {
-                const horario = new Date(data);
-                horario.setHours(h, 0, 0, 0);
-                horarios.push(horario);
+        function adicionarIntervalos(inicioHora, fimHora, baseDate) {
+            for (let h = inicioHora; h <= fimHora; h++) {
+                for (let m of [0, 30]) {
+                    const horario = new Date(baseDate);
+                    horario.setHours(h, m, 0, 0);
+                    horarios.push(horario);
+                }
             }
+        }
+
+        if (diaSemana >= 1 && diaSemana <= 4) {
+            // Segunda a quinta: das 21h às 23h59 + madrugada até 01h59
+            adicionarIntervalos(21, 23, data);
+
             const proximoDia = new Date(data);
             proximoDia.setDate(data.getDate() + 1);
-            for (let h = 0; h <= 1; h++) {
-                const horario = new Date(proximoDia);
-                horario.setHours(h, 0, 0, 0);
-                horarios.push(horario);
-            }
+            adicionarIntervalos(0, 1, proximoDia);
         } else if (diaSemana === 5) {
-            for (let h = 16; h <= 20; h++) {
-                const horario = new Date(data);
-                horario.setHours(h, 0, 0, 0);
-                horarios.push(horario);
-            }
+            // Sexta-feira: das 16h às 20h59
+            adicionarIntervalos(16, 20, data);
         }
         return horarios;
     }
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const inicioDia = new Date(`${dataSelecionada}T00:00:00`);
             const fimDia = new Date(inicioDia);
-            fimDia.setDate(fimDia.getDate() + 1); // +1 dia para incluir madrugada
+            fimDia.setDate(fimDia.getDate() + 1);
 
             const { data, error } = await supabase
                 .from('horarios')
@@ -92,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const reservas = await fetchReservas(dataSelecionada);
 
         const reservadosSet = new Set(reservas.map(r => new Date(r.data_e_horario).getTime()));
-
         const disponiveis = todosHorarios.filter(h => !reservadosSet.has(h.getTime()));
 
         if (disponiveis.length === 0) {
@@ -187,7 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (dataInput.value) renderHorariosParaData(dataInput.value);
         }
     });
-
 
     // Data mínima
     const hoje = new Date();
