@@ -80,7 +80,7 @@ body {
     background: url('/images/banner.jpg') no-repeat center center/cover;
     position: relative;
     padding-top: var(--tamanho-cabecalho);
-    padding: 15rem 0;
+    padding: 15rem 1.5rem;
 }
 
 .hero::after {
@@ -200,7 +200,8 @@ body {
     background-color: var(--cor-secundaria);
     color: var(--cor-fundo);
     border: none;
-    padding: 0.5rem 1rem;
+    padding: 0.8rem 1.3rem;
+    font-size: 1rem;
     border-radius: 0.3rem;
     cursor: pointer;
     font-weight: bold;
@@ -429,8 +430,12 @@ footer a:hover {
         padding: 0.9375rem 1.25rem; /* 15px 20px */
     }
 
+    .logo a img {
+        height: 40px;
+    }
+
     .nav-links {
-        margin-top: 0.625rem;
+        margin-top: 1.25rem;
     }
 
     .nav-links a {
@@ -442,7 +447,7 @@ footer a:hover {
     }
     
     .hero p {
-        font-size: 1rem;
+        font-size: 1.4rem;
     }
 
     .container {
