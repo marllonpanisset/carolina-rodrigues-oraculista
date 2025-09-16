@@ -69,6 +69,7 @@ body {
 
 .nav-links a:hover {
     text-decoration: underline;
+    color: var(--cor-destaque);
 }
 
 /* Hero Section */
@@ -211,7 +212,7 @@ body {
 }
 
 .copy-button:hover {
-    background-color: #e0b000;
+    background-color: var(--cor-primaria);
 }
 
 #qr-code {
