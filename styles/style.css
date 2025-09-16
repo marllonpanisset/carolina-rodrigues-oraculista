@@ -4,6 +4,7 @@
     --cor-primaria: #4b0082; /* Roxo escuro */
     --cor-secundaria: #ffd700; /* Dourado */
     --cor-destaque: #8a2be2; /* Azul violeta */
+    --cor-header: #570081;
     --cor-texto-claro: #f0f0f0;
     --cor-texto-escuro: #333333;
     --cor-sombra: rgba(0, 0, 0, 0.5);
@@ -47,7 +48,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1.25rem 2.5rem; /* 20px 40px */
-    background-color: var(--cor-fundo);
+    background-color: var(--cor-header);
     box-shadow: 0 0.25rem 0.5rem var(--cor-sombra);
 }
 
@@ -67,7 +68,7 @@ body {
 }
 
 .nav-links a:hover {
-    color: var(--cor-destaque);
+    text-decoration: underline;
 }
 
 /* Hero Section */
