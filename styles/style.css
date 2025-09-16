@@ -1,10 +1,10 @@
 :root {
-    /* Paleta de Cores Sombrias */
+    /* Paleta de Cores Sombrias - Tema em Vermelho */
     --cor-fundo: #000000;
-    --cor-primaria: #4b0082; /* Roxo escuro */
-    --cor-secundaria: #ffd700; /* Dourado */
-    --cor-destaque: #8a2be2; /* Azul violeta */
-    --cor-header: #570081;
+    --cor-primaria: #A4161A; /* Vermelho principal, mais escuro */
+    --cor-secundaria: #BA181B; /* Vermelho de destaque, mais claro */
+    --cor-destaque: #BA181B; /* Mantendo o vermelho claro para o CTA */
+    --cor-header: #111011; /* Tom de preto para o cabeçalho, para dar mais profundidade */
     --cor-texto-claro: #f0f0f0;
     --cor-texto-escuro: #333333;
     --cor-sombra: rgba(0, 0, 0, 0.5);
