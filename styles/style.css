@@ -63,9 +63,14 @@ body {
     text-decoration: none;
     font-size: 1.3rem;
     font-weight: 500;
-    
     margin-left: 1.5625rem; /* 25px */
     transition: color 0.3s ease;
+}
+
+@media (max-width: 48rem) {
+    .nav-links a {
+        font-size: 1.1rem;
+    }
 }
 
 .nav-links a:hover {
