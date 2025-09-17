@@ -85,10 +85,16 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
-    background: url('/images/banner2.jpeg') no-repeat center 40%/cover;
     position: relative;
     padding-top: var(--tamanho-cabecalho);
     padding: 15rem 1.5rem;
+    background: url('/images/banner2.jpeg') no-repeat center 40%/cover;
+}
+
+@media (max-width: 48rem) {
+    .hero {
+        background: url('/images/banner2.jpeg') no-repeat 30% 40%/cover;
+    }
 }
 
 .hero::after {
