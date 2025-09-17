@@ -612,6 +612,10 @@ footer a:hover {
     .slider-wrapper {
         padding: 0 2rem;
     }
+
+    .depoimentos-container {
+        padding: 0;
+    }
 }
 
 /* Estilos para os botões de navegação */
