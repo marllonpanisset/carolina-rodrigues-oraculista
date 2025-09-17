@@ -80,12 +80,12 @@ body {
 
 /* Hero Section */
 .hero {
-    height: auto;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
-    background: url('/images/banner.jpg') no-repeat center center/cover;
+    background: url('/images/banner2.jpeg') no-repeat center 40%/cover;
     position: relative;
     padding-top: var(--tamanho-cabecalho);
     padding: 15rem 1.5rem;
