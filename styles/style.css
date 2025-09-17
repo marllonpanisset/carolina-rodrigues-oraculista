@@ -148,9 +148,6 @@ body {
     max-width: 60rem; /* 960px */
     margin: 0 auto;
     padding: var(--espacamento-secoes);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
 }
 
 .agendamento {
@@ -158,6 +155,11 @@ body {
     padding-top: var(--tamanho-cabecalho);
 }
 
+.agendamento .container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
 
 .form-instructions, .schedule-form {
     flex: 1;
@@ -179,7 +181,6 @@ body {
     border: 1px solid var(--cor-destaque);
     padding: 1.5rem;
     border-radius: 0.5rem;
-    margin-top: 2rem;
     text-align: center;
 }
 
@@ -248,12 +249,12 @@ body {
 .schedule-form input,
 .schedule-form select {
     padding: 0.75rem;
+    height: 50px;
     background-color: rgba(255, 255, 255, 0.1);
     border: 1px solid var(--cor-primaria);
     color: var(--cor-texto-claro);
     border-radius: 0.3rem;
     font-size: 1rem;
-    /* Novas propriedades para consistência */
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -269,7 +270,7 @@ body {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
-    padding-right: 2rem; /* Adiciona espaço para a seta */
+    padding-right: 2rem;
 }
 
 .schedule-form button[type="submit"] {
@@ -283,7 +284,6 @@ body {
     font-weight: bold;
     text-transform: uppercase;
     transition: background-color 0.3s ease;
-    /* Propriedade para consistência */
     display: block;
 }
 
@@ -294,13 +294,11 @@ body {
 /* Container do input, servindo como âncora para o ícone */
 .input-container {
     position: relative;
-    /* Adicione as margens e espaçamentos necessários */
     margin-bottom: 1rem;
 }
 
 /* Estilização do input */
 .schedule-form input[type="date"] {
-    /* Mantenha o seu estilo original */
     width: 100%;
     padding: 0.75rem;
     background-color: rgba(255, 255, 255, 0.1);
@@ -308,8 +306,6 @@ body {
     color: var(--cor-texto-claro);
     border-radius: 0.3rem;
     font-size: 1rem;
-
-    /* Remove o ícone nativo */
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -327,7 +323,7 @@ body {
     height: 24px;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
     background-size: contain;
-    pointer-events: none; /* Crucial para permitir o clique no input */
+    pointer-events: none;
 }
 
 /* Oculta o ícone nativo apenas no Chrome/Safari */
@@ -423,20 +419,19 @@ footer .container {
 
 .by-line {
     font-weight: 500;
+    margin-top: 20px
 }
 
 footer a {
     color: var(--cor-texto-claro);
     text-decoration: none;
     font-weight: 400;
-    
 }
 
 footer a:hover {
     text-decoration: underline;
     color: var(--cor-destaque);
 }
-
 
 /* Responsividade */
 @media (max-width: 48rem) {
@@ -464,7 +459,7 @@ footer a:hover {
     .hero h2 {
         font-size: 2rem;
     }
-    
+
     .hero p {
         font-size: 1.4rem;
     }
@@ -473,6 +468,10 @@ footer a:hover {
         flex-direction: column;
         padding-left: 2rem;
         padding-right: 2rem;
+    }
+    
+    .pix-info {
+        margin-top: 2rem;
     }
 
     .pix-info #valor-pix {
@@ -491,8 +490,8 @@ footer a:hover {
         display: block;
         width: 100%;
         margin-top: 0.5rem;
-    }    
-    
+    }
+
     .schedule-form button[type="submit"],
     .cta-button {
         font-size: 1rem;
@@ -540,13 +539,11 @@ footer a:hover {
     font-weight: bold;
 }
 
-
 @media (max-width: 23rem) {
     .schedule-form {
         width: 90%;
         margin: 0 auto;
     }
-    
 
     .copy-button {
         padding: 0.9rem 1rem;
@@ -558,16 +555,17 @@ footer a:hover {
     }
 }
 
-/* Estilos da seção de depoimentos (versão correta e consolidada) */
+/* Estilos da seção de depoimentos */
 .depoimentos {
-    padding: var(--espacamento-secoes);
+    padding: var(--espacamento-secoes) 0;
     background-color: var(--cor-fundo);
     text-align: center;
 }
 
-.depoimentos .container {
+.depoimentos-container {
     max-width: 80rem;
-    padding: var(--espacamento-secoes);
+    margin: 0 auto;
+    padding: 0 var(--espacamento-secoes);
 }
 
 .depoimentos h2 {
@@ -577,22 +575,19 @@ footer a:hover {
     margin-bottom: 2.5rem;
 }
 
-/* O wrapper limita a área visível do slider */
 .slider-wrapper {
     overflow: hidden;
     position: relative;
+    padding: 0 3.75rem; /* 60px */
 }
 
-/* O track é o elemento que será movido pelo JS */
 .slider-track {
     display: flex;
     transition: transform 0.5s ease-in-out;
 }
 
-/* Estilos para cada depoimento */
 .depoimento {
     background-color: var(--cor-header);
-    
     border-radius: 0.5rem;
     box-shadow: 0 0.25rem 0.5rem var(--cor-sombra);
     padding: 2.5rem;
@@ -601,7 +596,6 @@ footer a:hover {
     width: calc(50% - 2.5rem);
 }
 
-/* Estilo do texto do depoimento */
 .depoimento p {
     font-family: var(--fonte-alternativa);
     color: var(--cor-texto-claro);
@@ -610,15 +604,17 @@ footer a:hover {
     line-height: 1.8;
 }
 
-
-
 @media (max-width: 48rem) {
     .depoimento p {
         font-size: 1rem;
         line-height: 1.6;
     }
+    .slider-wrapper {
+        padding: 0 2rem;
+    }
 }
 
+/* Estilos para os botões de navegação */
 .slider-btn {
     position: absolute;
     top: 50%;
@@ -661,7 +657,6 @@ footer a:hover {
     height: 1.5rem;
 }
 
-/*---*/
 
 /* Mantenha sua media query no final do arquivo para que ela sobreponha as regras anteriores */
 @media (max-width: 48rem) {

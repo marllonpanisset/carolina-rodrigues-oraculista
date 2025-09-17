@@ -7,147 +7,143 @@
         <meta name="description" content="Agende sua consulta de tarot online com a oraculista Cacau. Respostas para 1, 2, 4 perguntas ou sim/não.">
         <meta name="keywords" content="tarot, agendamento online, consulta de tarot, oraculista, jogo de tarot, tarot online, perguntas de tarot, Cacau, oraculo maria padilha, maria padilha">
         <meta name="author" content="Cacau">
-        <link rel="canonical" href="https://carolinarodrigues.netlify.app/">
+        <link rel="canonical" href="https://cacaudasete.netlify.app/">
         <meta property="og:title" content="Cacau - Oraculo de Maria Padilha">
         <meta property="og:description" content="Agende sua consulta de forma simples e rápida. Respostas para todas as suas perguntas.">
-        <meta property="og:image" content="https://carolinarodrigues.netlify.app/images/share-logo.png">
-        <meta property="og:url" content="https://carolinarodrigues.netlify.app/">
+        <meta property="og:image" content="https://cacaudasete.netlify.app/images/share-logo.png">
+        <meta property="og:url" content="https://cacaudasete.netlify.app/">
         <meta property="og:type" content="website">
         <meta name="theme-color" content="#000000">
         <link rel="stylesheet" href="/styles/style.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     </head>
-<body>
+    <body>
 
-    <header class="header">
-        <h1 class="logo">
-            <a href="#hero">
-                <img src="/images/logo.png" alt="Logo Cacau">
+        <header class="header">
+            <h1 class="logo">
+                <a href="#hero">
+                    <img src="/images/logo.png" alt="Logo Cacau">
 
-            </a>
-        </h1>
-        <nav class="nav-links">
-            <a href="#hero">Início</a>
-            <a href="#agendamento">Agendar</a>
-            <a href="#depoimentos">Depoimentos</a>
-        </nav>
-    </header>
+                </a>
+            </h1>
+            <nav class="nav-links">
+                <a href="#hero">Início</a>
+                <a href="#agendamento">Agendar</a>
+                <a href="#depoimentos">Depoimentos</a>
+            </nav>
+        </header>
 
-    <main>
-        <section id="hero" class="hero">
-            <div class="hero-content">
-                
-                <p>Cartomante dedicada à força de Maria Padilha, trazendo mensagens sinceras para amor, vida e caminhos.</p>
-                <p>O Tarot não prevê o futuro, ele mostra o caminho.</p>
-                <p>Deixe Padilha te guiar e descubra o que ela tem para revelar.</p>
-                <a href="#agendamento" class="cta-button">Agendar Consulta</a>
-            </div>
-        </section>
+        <main>
+            <section id="hero" class="hero">
+                <div class="hero-content">
 
-        <section id="agendamento" class="agendamento">
+                    <p>Cartomante dedicada à força de Maria Padilha, trazendo mensagens sinceras para amor, vida e caminhos.</p>
+                    <p>O Tarot não prevê o futuro, ele mostra o caminho.</p>
+                    <p>Deixe Padilha te guiar e descubra o que ela tem para revelar.</p>
+                    <a href="#agendamento" class="cta-button">Agendar Consulta</a>
+                </div>
+            </section>
+
+            <section id="agendamento" class="agendamento">
+                <div class="container">
+                    <div class="form-instructions">
+                        <h3>Agende Sua Consulta</h3>
+                        <p>Entre em contato comigo pelo WhatsApp <strong>apenas após o pagamento</strong>. Preencha todos os campos do formulário para concluir o agendamento.</p>
+                    </div>
+
+                    <form name="agendamento-Carolina" id="schedule-form" class="schedule-form" method="POST" enctype="multipart/form-data">
+                        <label for="nome">Nome Completo</label>
+                        <input type="text" id="nome" name="nome" required>
+
+                        <label for="data-nascimento">Data de Nascimento</label>
+                        <div class="input-container">
+                            <input type="date" id="data-nascimento" name="data-nascimento" required>
+                        </div>
+
+                        <label for="data-consulta">Selecione o dia da consulta</label>
+                        <div class="input-container">
+                            <input type="date" id="data-consulta" name="data-consulta" required>
+                        </div>
+
+                        <label>Horários Disponíveis:</label>
+                        <div id="horarios-disponiveis" class="horarios-grid">
+                            <p>Carregando horários...</p>
+                        </div>
+
+                        <label for="perguntas">Número de Perguntas</label>
+                        <select id="perguntas" name="perguntas" required>
+                            <option value="">Selecione a quantidade</option>
+                            <option value="1">1 Pergunta - R$ 7,00</option>
+                            <option value="2">2 Perguntas - R$ 10,00</option>
+                            <option value="4">4 Perguntas - R$ 17,00</option>
+                            <option value="s-n">Pergunta Sim ou Não - R$ 1,00</option>
+                        </select>
+
+                        <div class="pix-info">
+                            <h4>Valor do Pix: <span id="valor-pix">R$ 0,00</span></h4>
+                            <div class="chave-pix">
+                                <span id="chave-pix-texto">21990896570</span>
+                                <button id="copy-pix" class="copy-button">Copiar Chave</button>
+                            </div>
+                        </div>
+
+                        <label for="comprovante">Comprovante de Pagamento (PDF)</label>
+                        <input type="file" id="comprovante" name="comprovante" accept=".pdf" required>
+
+                        <button type="submit">Agendar Consulta</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="depoimentos" class="depoimentos">
+                <div class="depoimentos-container">
+                    <h2>Depoimentos</h2>
+                    <div class="slider-wrapper">
+                        <div class="slider-track">
+                            <div class="depoimento">
+                                <p>"Gratidão imensa pela tiragem no baralho de padilha. 🙏✨ Suas palavras trouxeram luz, direcionamento e acolhimento ao meu coração. Que a espiritualidade continue iluminando seus caminhos, para que você siga sendo instrumento de sabedoria e clareza na vida de tantas pessoas. 🌹🔮"</p>
+                            </div>
+                            <div class="depoimento">
+                                <p>"Acho que ele me procurou no mesmo dia que falei com você, não lembro ao certo 🥹🤯😂 mas estamos bem na medida do possível, ele abriu um pouco do coração dele comigo, Falou sobre sentimentos, Hoje até falou em namoro 🥰"</p>
+                            </div>
+                            <div class="depoimento">
+                                <p>"tu tirou um peso enorme das minhas costas, achei que estaria fazendo papel de besta! kkkk foi maravilhoso, muito obrigada mesmo! 🥰 futuramente venho fazer outra! 🥰"</p>
+                            </div>
+                            <div class="depoimento">
+                                <p>"Oi, boa tarde, eu queria agradecer pela tiragem, gostei muito da forma como você explicou e conduziu. Gostaria também, se possível, que você me enviasse a tabela de preços para futuras consultas, porque provavelmente vou querer fazer outras tiragens com você em breve. Obrigada desde já 💕"</p>
+                            </div>
+                        </div>
+                        <button id="prev-btn" class="slider-btn prev-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        </button>
+                        <button id="next-btn" class="slider-btn next-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
             <div class="container">
-                <div class="form-instructions">
-                    <h3>Agende Sua Consulta</h3>
-                    <p>Entre em contato comigo pelo WhatsApp <strong>apenas após o pagamento</strong>. Preencha todos os campos do formulário para concluir o agendamento.</p>
-                    
-                    <div class="pix-info">
-                        <h4>Valor do Pix: <span id="valor-pix">R$ 0,00</span></h4>
-                        <div class="chave-pix">
-                            <span id="chave-pix-texto">21990896570</span>
-                            <button id="copy-pix" class="copy-button">Copiar Chave</button>
-                        </div>
-                        
-                    </div>
-                </div>
-
-                <form name="agendamento-Carolina" id="schedule-form" class="schedule-form" method="POST" enctype="multipart/form-data">
-                    <label for="nome">Nome Completo</label>
-                    <input type="text" id="nome" name="nome" required>
-
-                    <label for="data-nascimento">Data de Nascimento</label>
-                    <div class="input-container">
-                        <input type="date" id="data-nascimento" name="data-nascimento" required>
-                    </div>
-                    
-                    <label for="data-consulta">Selecione o dia da consulta</label>
-                    <div class="input-container">
-                        <input type="date" id="data-consulta" name="data-consulta" required>
-                    </div>
-
-                    <label>Horários Disponíveis:</label>
-                    <div id="horarios-disponiveis" class="horarios-grid">
-                        <p>Carregando horários...</p>
-                    </div>
-
-                    <label for="perguntas">Número de Perguntas</label>
-                    <select id="perguntas" name="perguntas" required>
-                        <option value="">Selecione a quantidade</option>
-                        <option value="1">1 Pergunta - R$ 7,00</option>
-                        <option value="2">2 Perguntas - R$ 10,00</option>
-                        <option value="4">4 Perguntas - R$ 17,00</option>
-                        <option value="s-n">Pergunta Sim ou Não - R$ 1,00</option>
-                    </select>
-
-                    <label for="comprovante">Comprovante de Pagamento (PDF)</label>
-                    <input type="file" id="comprovante" name="comprovante" accept=".pdf" required>
-
-                    <button type="submit">Agendar Consulta</button>
-                </form>
+                <p>&copy; <span id="ano-dinamico"></span> Oraculista Carolina Rodrigues - Todos os direitos reservados.</p>
+                <p class="by-line">By: <a href="https://marllonpanisset.netlify.app/" target="_blank">Marllon Panisset</a></p>
             </div>
-        </section>
+        </footer>
 
-        <section id="depoimentos" class="depoimentos">
-            <div class="depoimentos-container">
-                <h2>Depoimentos</h2>
-                <div class="slider-wrapper">
-                    <div class="slider-track">
-                        <div class="depoimento">
-                            <p>"Gratidão imensa pela tiragem no baralho de padilha. 🙏✨ Suas palavras trouxeram luz, direcionamento e acolhimento ao meu coração. Que a espiritualidade continue iluminando seus caminhos, para que você siga sendo instrumento de sabedoria e clareza na vida de tantas pessoas. 🌹🔮"</p>
-                        </div>
-                        <div class="depoimento">
-                            <p>"Acho que ele me procurou no mesmo dia que falei com você, não lembro ao certo 🥹🤯😂 mas estamos bem na medida do possível, ele abriu um pouco do coração dele comigo, Falou sobre sentimentos, Hoje até falou em namoro 🥰"</p>
-                        </div>
-                        <div class="depoimento">
-                            <p>"tu tirou um peso enorme das minhas costas, achei que estaria fazendo papel de besta! kkkk
-                            foi maravilhoso, muito obrigada mesmo! 🥰
-                            futuramente venho fazer outra! 🥰"</p>
-                        </div>
-                        <div class="depoimento">
-                            <p>"Oi, boa tarde, eu queria agradecer pela tiragem, gostei muito da forma como você explicou e conduziu. Gostaria também, se possível, que você me enviasse a tabela de preços para futuras consultas, porque provavelmente vou querer fazer outras tiragens com você em breve. Obrigada desde já 💕"</p>
-                        </div>
-                        
-                    </div>
-                    <button id="prev-btn" class="slider-btn prev-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                    </button>
-                    <button id="next-btn" class="slider-btn next-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                    </button>
-                </div>
-                
+        <div id="success-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h2>Atendimento Agendado com Sucesso!</h2>
+                <p>Sua consulta foi agendada. Entre em contato comigo pelo WhatsApp e anexe o PDF do comprovante de pagamento.</p>
+                <a id="whatsapp-link" href="#" class="whatsapp-button" target="_blank">Entrar em contato no WhatsApp</a>
             </div>
-        </section>
-    </main>
-
-    <footer>
-        <div class="container">
-            <p>&copy; <span id="ano-dinamico"></span> Oraculista Carolina Rodrigues - Todos os direitos reservados.</p>
-            <p class="by-line">By: <a href="https://marllonpanisset.netlify.app/" target="_blank">Marllon Panisset</a></p>
         </div>
-    </footer>
 
-    <div id="success-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2>Atendimento Agendado com Sucesso!</h2>
-            <p>Sua consulta foi agendada. Entre em contato comigo pelo WhatsApp e anexe o PDF do comprovante de pagamento.</p>
-            <a id="whatsapp-link" href="#" class="whatsapp-button" target="_blank">Entrar em contato no WhatsApp</a>
-        </div>
-    </div>
-    
-    <script src="/scripts/script.js"></script>
-   <script src="/scripts/slider.js"></script>
-</body>
+        <script src="/scripts/script.js"></script>
+        <script src="/scripts/slider.js"></script>
+    </body>
 </html>
