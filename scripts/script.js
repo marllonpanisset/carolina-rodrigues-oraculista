@@ -11,6 +11,26 @@ const valorPixSpan = document.getElementById("valor-pix");
 const chavePixTexto = document.getElementById("chave-pix-texto");
 const copyPixBtn = document.getElementById("copy-pix");
 
+// Adicionar código para fechar o modal
+const modal = document.getElementById("success-modal");
+const closeButton = document.querySelector(".close-button");
+
+// Função para fechar o modal
+const closeModal = () => {
+    modal.style.display = "none";
+};
+
+// Fechar o modal ao clicar no botão 'X'
+closeButton.addEventListener("click", closeModal);
+
+// Fechar o modal ao clicar fora dele
+window.addEventListener("click", (event) => {
+    if (event.target === modal) {
+        closeModal();
+    }
+});
+
+
 let duracaoSelecionada = 30; // padrão
 
 // Mapeamento quantidade de perguntas -> duração e valor
