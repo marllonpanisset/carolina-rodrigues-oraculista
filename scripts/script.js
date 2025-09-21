@@ -184,14 +184,17 @@ form.addEventListener("submit", async (e) => {
 
   // NOVAS VARIÁVEIS PARA A MENSAGEM DO WHATSAPP
   const perguntasTexto = perguntasSelect.options[perguntasSelect.selectedIndex].text;
-  const valorPix = valorPixSpan.textContent;
+  
+  // **Ajuste 1: Formata a data para o padrão brasileiro**
+  const dataFormatada = dataConsulta.split('-').reverse().join('/');
 
   if (!horario) {
     alert("Selecione um horário antes de agendar.");
     return;
   }
 
-    // código de upload de comprovante
+  
+     // código de upload de comprovante
     
     //   const { data: fileData, error: uploadError } = await supabase.storage
     //     .from("comprovantes")
@@ -222,11 +225,10 @@ form.addEventListener("submit", async (e) => {
   } else {
     document.getElementById("success-modal").style.display = "flex";
     
-        // ATUALIZA O LINK DO BOTÃO DO WHATSAPP
-    const mensagemWhatsapp = `Olá Carolina, agendei meu atendimento para:
-    dia ${dataConsulta} às ${horario.slice(0, 5)} horas
-    realizei o pagamento no valor de ${valorPix}
-    referente a opção "${perguntasTexto}"`;
+    
+    const mensagemWhatsapp = `Olá Cacau, agendei meu atendimento para:
+dia ${dataFormatada} às ${horario.slice(0, 5)} horas
+realizei o pagamento via pix referente a opção "${perguntasTexto}"`;
 
     document.getElementById("whatsapp-link").href = `https://wa.me/5521990896570?text=${encodeURIComponent(mensagemWhatsapp)}`;
   }
