@@ -62,6 +62,17 @@
                         <div class="input-container">
                             <input type="date" id="data-nascimento" name="data-nascimento" required>
                         </div>
+                        
+                        <label for="perguntas">Número de Perguntas</label>
+                        <select id="perguntas" name="perguntas" required>
+                            <option value="">Selecione a opção</option>
+                            <option value="1">1 Pergunta - R$ 10,00</option>
+                            <option value="2">2 Perguntas - R$ 15,00</option>
+                            <option value="4">4 Perguntas - R$ 20,00</option>
+                            <option value="s-n">Pergunta Sim ou Não - R$ 3,77</option>
+                            <option value="30min">Consulta de 30 Minutos - R$ 57,00</option>
+                            <option value="1h">Consulta de 1 Hora - R$ 77,00</option>
+                        </select>
 
                         <label for="data-consulta">Selecione o dia da consulta</label>
                         <div class="input-container">
@@ -73,14 +84,6 @@
                             <p>Carregando horários...</p>
                         </div>
 
-                        <label for="perguntas">Número de Perguntas</label>
-                        <select id="perguntas" name="perguntas" required>
-                            <option value="">Selecione a quantidade</option>
-                            <option value="1">1 Pergunta - R$ 7,00</option>
-                            <option value="2">2 Perguntas - R$ 10,00</option>
-                            <option value="4">4 Perguntas - R$ 17,00</option>
-                            <option value="s-n">Pergunta Sim ou Não - R$ 1,00</option>
-                        </select>
 
                         <div class="pix-info">
                             <h4>Valor do Pix: <span id="valor-pix">R$ 0,00</span></h4>
@@ -91,7 +94,7 @@
                         </div>
 
                         <label for="comprovante">Comprovante de Pagamento (PDF)</label>
-                        <input type="file" id="comprovante" name="comprovante" accept=".pdf" required>
+                        <input type="file" id="comprovante" name="comprovante" accept=".pdf, image/*" required>
 
                         <button type="submit">Agendar Consulta</button>
                     </form>

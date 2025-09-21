@@ -1,195 +1,206 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const SUPABASE_URL = 'https://zuydviwvfarqiwfcwbou.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1eWR2aXd2ZmFycWl3ZmN3Ym91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NzU2MTEsImV4cCI6MjA3MzQ1MTYxMX0.a5G6V5b8rhnjIsoyzluN_koc1gXKGJI-H5A9826bWLg';
+// Inicializa Supabase
+const supabaseUrl = "https://zuydviwvfarqiwfcwbou.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1eWR2aXd2ZmFycWl3ZmN3Ym91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NzU2MTEsImV4cCI6MjA3MzQ1MTYxMX0.a5G6V5b8rhnjIsoyzluN_koc1gXKGJI-H5A9826bWLg";
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const form = document.getElementById("schedule-form");
+const horariosDiv = document.getElementById("horarios-disponiveis");
+const perguntasSelect = document.getElementById("perguntas");
+const dataConsultaInput = document.getElementById("data-consulta");
+const valorPixSpan = document.getElementById("valor-pix");
+const chavePixTexto = document.getElementById("chave-pix-texto");
+const copyPixBtn = document.getElementById("copy-pix");
 
-    const anoFooter = document.getElementById('ano-dinamico');
-    anoFooter.textContent = new Date().getFullYear();
+let duracaoSelecionada = 30; // padrão
 
-    // DOM
-    const perguntasSelect = document.getElementById('perguntas');
-    const valorPixSpan = document.getElementById('valor-pix');
-    const formulario = document.getElementById('schedule-form');
-    const chavePix = document.getElementById('chave-pix-texto').innerText;
-    const copyButton = document.getElementById('copy-pix');
-    const modal = document.getElementById('success-modal');
-    const closeModal = document.querySelector('.close-button');
-    const whatsappLink = document.getElementById('whatsapp-link');
-    const horariosContainer = document.getElementById('horarios-disponiveis');
-    const dataInput = document.getElementById('data-consulta');
+// Mapeamento quantidade de perguntas -> duração e valor
+const opcoes = {
+  "1": { duracao: 30, valor: "R$ 10,00" },
+  "2": { duracao: 30, valor: "R$ 15,00" },
+  "4": { duracao: 30, valor: "R$ 20,00" },
+  "s-n": { duracao: 30, valor: "R$ 3,77" },
+  "30min": { duracao: 30, valor: "R$ 57,00" },
+  "1h": { duracao: 60, valor: "R$ 77,00" },
+};
 
-    const precos = {
-        '1': 7.00,
-        '2': 10.00,
-        '4': 17.00,
-        's-n': 1.00
-    };
+// Atualiza valor do Pix e duração ao escolher perguntas
+perguntasSelect.addEventListener("change", () => {
+  const selected = perguntasSelect.value;
+  if (opcoes[selected]) {
+    duracaoSelecionada = opcoes[selected].duracao;
+    valorPixSpan.textContent = opcoes[selected].valor;
+  } else {
+    duracaoSelecionada = 30;
+    valorPixSpan.textContent = "R$ 0,00";
+  }
 
-    function atualizarValorPix() {
-        const quantidade = perguntasSelect.value;
-        const valor = precos[quantidade] || 0.00;
-        valorPixSpan.innerText = `R$ ${valor.toFixed(2).replace('.', ',')}`;
+  // limpa horários quando muda a opção
+  horariosDiv.innerHTML = "<p>Selecione uma data...</p>";
+  dataConsultaInput.value = "";
+});
+
+// Ao escolher data -> carregar horários disponíveis
+dataConsultaInput.addEventListener("change", async () => {
+  const data = dataConsultaInput.value;
+  if (!data || !duracaoSelecionada) return;
+
+  horariosDiv.innerHTML = "<p>Carregando horários...</p>";
+
+  const { data: agendamentos, error } = await supabase
+    .from("agendamentos")
+    .select("horario, duracao")
+    .eq("data_consulta", data);
+
+  if (error) {
+    console.error("Erro Supabase:", error.message, error.details);
+    horariosDiv.innerHTML = "<p>Erro ao carregar horários.</p>";
+    return;
+  }
+
+  // Gera lista de horários conforme o dia da semana
+  const horariosGerados = gerarHorarios(duracaoSelecionada, data);
+
+  if (horariosGerados.length === 0) {
+    horariosDiv.innerHTML =
+      "<p>Nenhum horário disponível para esse dia.</p>";
+    return;
+  }
+
+  // Remove horários já ocupados
+  const horariosOcupados = agendamentos.map((a) => a.horario);
+  const horariosDisponiveis = horariosGerados.filter(
+    (h) => !horariosOcupados.includes(h)
+  );
+
+  // Renderiza
+  if (horariosDisponiveis.length === 0) {
+    horariosDiv.innerHTML = "<p>Nenhum horário disponível.</p>";
+  } else {
+    horariosDiv.innerHTML = "";
+    horariosDisponiveis.forEach((hora) => {
+      const label = document.createElement("label");
+      label.classList.add("horario-label");
+
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = "horario";
+      input.value = hora;
+
+      const span = document.createElement("span");
+      span.textContent = hora.slice(0, 5);
+
+      input.addEventListener("change", () => {
+        form.dataset.horario = hora;
+      });
+
+      label.appendChild(input);
+      label.appendChild(span);
+      horariosDiv.appendChild(label);
+    });
+  }
+});
+
+// Gera horários (30 ou 60 minutos) no formato HH:mm:ss
+function gerarHorarios(intervalo, dataSelecionada) {
+  const horarios = [];
+  // Corrige fuso horário UTC -> local
+  const data = new Date(dataSelecionada + "T00:00:00");
+  const diaSemana = data.getDay(); // 0 = domingo, 1 = segunda, ..., 6 = sábado
+
+  // Segunda a quinta → 21h até 01h
+  if (diaSemana >= 1 && diaSemana <= 4) {
+    horarios.push(...intervalosEntre(21, 24, intervalo));
+    horarios.push(...intervalosEntre(0, 1, intervalo));
+  }
+  // Sexta → 16h até 20h
+  else if (diaSemana === 5) {
+    horarios.push(...intervalosEntre(16, 20, intervalo));
+  }
+  // Sábado (6) e Domingo (0) → sem horários
+  else {
+    return [];
+  }
+
+  return horarios;
+}
+
+// Função auxiliar para gerar intervalos
+function intervalosEntre(horaInicio, horaFim, intervalo) {
+  const lista = [];
+  let hora = horaInicio;
+  let minuto = 0;
+  while (hora < horaFim) {
+    lista.push(
+      `${hora.toString().padStart(2, "0")}:${minuto
+        .toString()
+        .padStart(2, "0")}:00`
+    );
+    minuto += intervalo;
+    if (minuto >= 60) {
+      minuto = 0;
+      hora++;
     }
+  }
+  return lista;
+}
 
-    // 🔧 Geração dinâmica de horários (agora de 30 em 30 minutos)
-    function gerarHorariosParaData(dataSelecionada) {
-        const [ano, mes, dia] = dataSelecionada.split('-').map(Number);
-        const data = new Date(ano, mes - 1, dia);
-        const diaSemana = data.getDay();
-        let horarios = [];
+// Copiar chave Pix
+copyPixBtn.addEventListener("click", () => {
+  navigator.clipboard.writeText(chavePixTexto.textContent).then(() => {
+    alert("Chave Pix copiada!");
+  });
+});
 
-        function adicionarIntervalos(inicioHora, fimHora, baseDate) {
-            for (let h = inicioHora; h <= fimHora; h++) {
-                for (let m of [0, 30]) {
-                    const horario = new Date(baseDate);
-                    horario.setHours(h, m, 0, 0);
-                    horarios.push(horario);
-                }
-            }
-        }
+// Envio do formulário
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-        if (diaSemana >= 1 && diaSemana <= 4) {
-            // Segunda a quinta: das 21h às 23h59 + madrugada até 01h59
-            adicionarIntervalos(21, 23, data);
+  const nome = form.nome.value;
+  const nascimento = form["data-nascimento"].value;
+  const dataConsulta = form["data-consulta"].value;
+  const perguntas = form.perguntas.value;
+  const comprovante = form.comprovante.files[0];
+  const horario = form.dataset.horario;
 
-            const proximoDia = new Date(data);
-            proximoDia.setDate(data.getDate() + 1);
-            adicionarIntervalos(0, 1, proximoDia);
-        } else if (diaSemana === 5) {
-            // Sexta-feira: das 16h às 20h59
-            adicionarIntervalos(16, 20, data);
-        }
-        return horarios;
-    }
+  if (!horario) {
+    alert("Selecione um horário antes de agendar.");
+    return;
+  }
 
-    // 🔧 Buscar reservas já feitas
-    async function fetchReservas(dataSelecionada) {
-        try {
-            const inicioDia = new Date(`${dataSelecionada}T00:00:00`);
-            const fimDia = new Date(inicioDia);
-            fimDia.setDate(fimDia.getDate() + 1);
+  // Upload do comprovante
+//   const { data: fileData, error: uploadError } = await supabase.storage
+//     .from("comprovantes")
+//     .upload(`comprovantes/${Date.now()}-${comprovante.name}`, comprovante);
 
-            const { data, error } = await supabase
-                .from('horarios')
-                .select('data_e_horario')
-                .gte('data_e_horario', inicioDia.toISOString())
-                .lt('data_e_horario', fimDia.toISOString());
+//   if (uploadError) {
+//     console.error(uploadError);
+//     alert("Erro ao enviar comprovante.");
+//     return;
+//   }
 
-            if (error) throw error;
-            return data || [];
-        } catch (err) {
-            console.error("Erro ao buscar reservas:", err);
-            return [];
-        }
-    }
+  // Salvar no banco
+  const { error } = await supabase.from("agendamentos").insert([
+    {
+      nome,
+      data_nascimento: nascimento,
+      data_consulta: dataConsulta,
+      horario,
+      perguntas,
+      duracao: duracaoSelecionada,
+    //   comprovante: fileData.path,
+    },
+  ]);
 
-    // Renderizar horários
-    async function renderHorariosParaData(dataSelecionada) {
-        horariosContainer.innerHTML = '<p>Carregando horários...</p>';
-
-        const todosHorarios = gerarHorariosParaData(dataSelecionada);
-        const reservas = await fetchReservas(dataSelecionada);
-
-        const reservadosSet = new Set(reservas.map(r => new Date(r.data_e_horario).getTime()));
-        const disponiveis = todosHorarios.filter(h => !reservadosSet.has(h.getTime()));
-
-        if (disponiveis.length === 0) {
-            horariosContainer.innerHTML = '<p>Não há horários disponíveis para o dia selecionado.</p>';
-        } else {
-            horariosContainer.innerHTML = '';
-            disponiveis.forEach(h => {
-                const horarioFormatado = h.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                const iso = h.toISOString();
-                const id = iso.replace(/[:.]/g, '-');
-                horariosContainer.innerHTML += `
-                    <div>
-                        <input type="radio" id="${id}" name="horario-escolhido" value="${iso}" required>
-                        <label for="${id}">${horarioFormatado}</label>
-                    </div>
-                `;
-            });
-        }
-    }
-
-    // Submissão
-    formulario.addEventListener('submit', async (event) => {
-        event.preventDefault();
-
-        const nome = document.getElementById('nome').value;
-        const dataNascimento = document.getElementById('data-nascimento').value;
-        const perguntas = perguntasSelect.value;
-        const horarioEscolhido = formulario.querySelector('input[name="horario-escolhido"]:checked');
-        const comprovante = document.getElementById('comprovante').files[0];
-
-        if (!horarioEscolhido || !comprovante) {
-            alert('Por favor, selecione um horário e anexe o comprovante.');
-            return;
-        }
-
-        try {
-            const { error } = await supabase
-                .from('horarios')
-                .insert([{
-                    data_e_horario: horarioEscolhido.value,
-                    nome,
-                    data_nascimento: dataNascimento,
-                    perguntas
-                }]);
-
-            if (error) throw error;
-
-            const dataEHora = new Date(horarioEscolhido.value);
-            const dataFormatada = dataEHora.toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-
-            const mensagemWhatsapp = `Olá, Cacau! Fiz um agendamento.%0A%0A*Dados do Agendamento:*%0A*Nome:* ${nome}%0A*Data de Nascimento:* ${dataNascimento}%0A*Quantidade de perguntas:* ${perguntasSelect.options[perguntasSelect.selectedIndex].text}%0A*Horário Agendado:* ${dataFormatada}%0A%0A Segue o comprovante do pagamento.`;
-
-            whatsappLink.href = `https://wa.me/5521990896570?text=${mensagemWhatsapp}`;
-            modal.style.display = 'flex';
-        } catch (error) {
-            console.error('Erro ao agendar:', error);
-            alert('Ocorreu um erro ao agendar. Por favor, tente novamente mais tarde.');
-        }
-    });
-
-    // Listeners
-    dataInput.addEventListener('change', (event) => {
-        renderHorariosParaData(event.target.value);
-    });
-
-    perguntasSelect.addEventListener('change', atualizarValorPix);
-
-    copyButton.addEventListener('click', () => {
-        navigator.clipboard.writeText(chavePix).then(() => {
-            alert('Chave Pix copiada para a área de transferência!');
-        });
-    });
-
-    closeModal.addEventListener('click', () => {
-        modal.style.display = 'none';
-        formulario.reset();
-        atualizarValorPix();
-        if (dataInput.value) renderHorariosParaData(dataInput.value);
-    });
-
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-            formulario.reset();
-            atualizarValorPix();
-            if (dataInput.value) renderHorariosParaData(dataInput.value);
-        }
-    });
-
-    // Data mínima
-    const hoje = new Date();
-    const dataFormatada = hoje.toISOString().split('T')[0];
-    dataInput.min = dataFormatada;
-    renderHorariosParaData(dataFormatada);
+  if (error) {
+    console.error(error);
+    alert("Erro ao salvar agendamento.");
+  } else {
+    document.getElementById("success-modal").style.display = "flex";
+    document.getElementById(
+      "whatsapp-link"
+    ).href = `https://wa.me/5521990896570?text=Olá, já fiz o pagamento e agendei para ${dataConsulta} às ${horario.slice(
+      0,
+      5
+    )}`;
+  }
 });
