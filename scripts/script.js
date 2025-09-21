@@ -202,11 +202,11 @@ form.addEventListener("submit", async (e) => {
   } else {
     document.getElementById("success-modal").style.display = "flex";
     
-    // ATUALIZA O LINK DO BOTÃO DO WHATSAPP
-    const mensagemWhatsapp = `Olá Carolina, agendei meu atendimento para:%0A`
-    + `dia ${dataConsulta} às ${horario.slice(0, 5)} horas%0A`
-    + `realizei o pagamento no valor de ${valorPix}%0A`
-    + `referente a opção "${perguntasTexto}"`;
+        // ATUALIZA O LINK DO BOTÃO DO WHATSAPP
+    const mensagemWhatsapp = `Olá Carolina, agendei meu atendimento para:
+    dia ${dataConsulta} às ${horario.slice(0, 5)} horas
+    realizei o pagamento no valor de ${valorPix}
+    referente a opção "${perguntasTexto}"`;
 
     document.getElementById("whatsapp-link").href = `https://wa.me/5521990896570?text=${encodeURIComponent(mensagemWhatsapp)}`;
   }
