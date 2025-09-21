@@ -162,21 +162,26 @@ form.addEventListener("submit", async (e) => {
   const comprovante = form.comprovante.files[0];
   const horario = form.dataset.horario;
 
+  // NOVAS VARIÁVEIS PARA A MENSAGEM DO WHATSAPP
+  const perguntasTexto = perguntasSelect.options[perguntasSelect.selectedIndex].text;
+  const valorPix = valorPixSpan.textContent;
+
   if (!horario) {
     alert("Selecione um horário antes de agendar.");
     return;
   }
 
-  // Upload do comprovante
-//   const { data: fileData, error: uploadError } = await supabase.storage
-//     .from("comprovantes")
-//     .upload(`comprovantes/${Date.now()}-${comprovante.name}`, comprovante);
+    // código de upload de comprovante
+    
+    //   const { data: fileData, error: uploadError } = await supabase.storage
+    //     .from("comprovantes")
+    //     .upload(`comprovantes/${Date.now()}-${comprovante.name}`, comprovante);
 
-//   if (uploadError) {
-//     console.error(uploadError);
-//     alert("Erro ao enviar comprovante.");
-//     return;
-//   }
+    //   if (uploadError) {
+    //     console.error(uploadError);
+    //     alert("Erro ao enviar comprovante.");
+    //     return;
+    //   }
 
   // Salvar no banco
   const { error } = await supabase.from("agendamentos").insert([
@@ -187,7 +192,7 @@ form.addEventListener("submit", async (e) => {
       horario,
       perguntas,
       duracao: duracaoSelecionada,
-    //   comprovante: fileData.path,
+      // comprovante: fileData.path,
     },
   ]);
 
@@ -196,11 +201,13 @@ form.addEventListener("submit", async (e) => {
     alert("Erro ao salvar agendamento.");
   } else {
     document.getElementById("success-modal").style.display = "flex";
-    document.getElementById(
-      "whatsapp-link"
-    ).href = `https://wa.me/5521990896570?text=Olá, já fiz o pagamento e agendei para ${dataConsulta} às ${horario.slice(
-      0,
-      5
-    )}`;
+    
+    // ATUALIZA O LINK DO BOTÃO DO WHATSAPP
+    const mensagemWhatsapp = `Olá Carolina, agendei meu atendimento para:%0A`
+    + `dia ${dataConsulta} às ${horario.slice(0, 5)} horas%0A`
+    + `realizei o pagamento no valor de ${valorPix}%0A`
+    + `referente a opção "${perguntasTexto}"`;
+
+    document.getElementById("whatsapp-link").href = `https://wa.me/5521990896570?text=${encodeURIComponent(mensagemWhatsapp)}`;
   }
 });
